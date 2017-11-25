@@ -1,23 +1,23 @@
 package chineseMateusz;
 
 public class Pawn {
-	public enum Color{
+	public enum PlayerColor{
 		BLUE, RED, GREEN, YELLOW, ORANGE, PINK;
 	}
 	
-	private Color color;
+	private PlayerColor playerColor;
 	private int x, y;
 	private boolean isInDestination;
 
-	public Pawn(Color color, int x, int y){
-		this.color = color;
+	public Pawn(PlayerColor playerColor, int x, int y){
+		this.playerColor = playerColor;
 		this.x = x;
 		this.y = y;
 		this.isInDestination = false;
 	}
 	
-	public Color getColor(){
-		return this.color;
+	public PlayerColor getPlayerColor(){
+		return this.playerColor;
 	}
 	
 	public int getX(){
