@@ -2,50 +2,66 @@ package chineseMateusz;
 
 import java.util.ArrayList;
 
+import chineseMateusz.Pawn.PlayerColor;
+import chineseMateuszExceptions.BadCoordinateException;
+
 public abstract class Player {
-	protected String name;
-	protected Color color;
-	protected boolean isHuman;
-	protected boolean hasFinished;
-	protected int place;
-	
+	private String name;
+	private PlayerColor playerColor;
+	private boolean isHuman;
+	private boolean hasFinished;
+	private int place;
+
 	protected Pawn[] pawns;
-	protected ArrayList<Integer[]> endCoordinates;
+	private ArrayList<int[]> endCoordinates;
 	
-	abstract protected void move();
-	
-	protected void placePawns(boolean up, int x, int y) {
-		int positions[][];
-		
-		if(up) {
-			int upPositions[][] = {{x,y},{x-1,y+1}}; // these coordinates will be added
-			positions = upPositions;
-		} else {
-			int upPositions[][] = {{x,y},{x-1,y+1}}; //these coordinates will be added
-			positions = upPositions;
-		}
+	public Player(String name, PlayerColor playerColor) {
+		this.name = name;
+		this.playerColor = playerColor;
+		hasFinished = false;
+		place = -1;
 	}
 	
-	protected boolean checkFinished() {
-		 boolean finish = true;
-		 
-		 ArrayList<Integer[]> tempEndCoord = endCoordinates;
-		 
-		 for(int i = 0; i < pawns.length; ++i) {
-			 int coordinates[] = new int[2];
-			 coordinates[0] = pawns[i].getX();
-			 coordinates[1] = pawns[i].getY();
-			 
-			 for(int j = 0; j < tempEndCoord.size(); ++j) {
-				 if(tempEndCoord.get(i)[0] == coordinates[0] && tempEndCoord.get(i)[1] == coordinates[1]) {
-					 tempEndCoord.remove(i);
-					 break;
-				 }
-			 }
-		 }
-		 
-		 return tempEndCoord.isEmpty();	 
+	abstract protected void move(); //x1,x2,y1,y2 has to be added as arguments
+
+	public boolean hasFinished() {
+		return hasFinished;
 	}
 
+	public void setFinished(boolean hasFinished) {
+		this.hasFinished = hasFinished;
+	}
+
+	public int getPlace() {
+		return place;
+	}
+
+	public void setPlace(int place) {
+		this.place = place;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setHuman(boolean isHuman) {
+		this.isHuman = isHuman;
+	}
+	
+	public boolean isHuman() {
+		return isHuman;
+	}  
+
+	public PlayerColor getPlayerColor() {
+		return playerColor;
+	}
+
+	public ArrayList<int[]> getEndCoordinates() {
+		return endCoordinates;
+	}
+
+	public void setEndCoordinates(ArrayList<int[]> endCoordinates) {
+		this.endCoordinates = endCoordinates;
+	}
 	
 }

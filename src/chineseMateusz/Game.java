@@ -17,3 +17,5 @@ public class Game extends JFrame {
 		
 	}
 }
+
+//TODO: in while loop with game there will be arguments send to the method with curr player
