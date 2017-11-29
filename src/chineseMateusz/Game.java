@@ -6,7 +6,7 @@ import chineseMateuszExceptions.InvalidNumberOfHumansException;
 import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
 public class Game{
-Player [] players;	
+protected Player [] players;	
 	
 	public void runGame() throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
 		Game g = new Game(6, 1); //TODO: needs to be changed so that the number of players can be customized
@@ -33,12 +33,13 @@ Player [] players;
 	}
 	
 	private void createPlayers(int x, int humans) {
+		players = new Player[x];
 		for (int i = 0; i < humans; i++){
-			players[i] = new Human("Player "+i,  getPColor(x, i));
+			players[i] = new Human("Player "+(i+1), getPColor(x, i));
 		}
 		
-		for (int j = humans; j < x-humans; j++){
-			players[j] = new Bot("Bot "+j, getPColor(x, j));
+		for (int j = humans; j < x; j++){
+			players[j] = new Bot("Bot "+(j-humans+1), getPColor(x, j));
 		}
 		//TODO: Order the PlayerColors depending on the number of players
 	}
@@ -80,6 +81,10 @@ Player [] players;
 			}
 		}
 		return true;
+	}
+	
+	public Player getPlayer(int x){
+		return players[x];
 	}
 }
 
