@@ -53,15 +53,15 @@ protected Board board;
 	private void createPlayers(int x, int humans) {
 		players = new Player[x];
 		for (int i = 0; i < humans; i++){
-			players[i] = PlayersFactory.getInstance.createPlayer(true,"Player "+(i+1), getPColor(x, i));
+			players[i] = PlayersFactory.getInstance().createPlayer(true,"Player "+(i+1), getPColor(x, i));
 		}
 		
 		for (int j = humans; j < x; j++){
-			players[j] = PlayersFactory.getInstance.createPlayer(false, "Bot "+(j-humans+1), getPColor(x, j));
+			players[j] = PlayersFactory.getInstance().createPlayer(false, "Bot "+(j-humans+1), getPColor(x, j));
 		}
 		//TODO: Order the PlayerColors depending on the number of players
 	}
-
+	
 	private PlayerColor getPColor(int x, int j) {
 		PlayerColor [] colors = new PlayerColor[x];
 		switch (x){
