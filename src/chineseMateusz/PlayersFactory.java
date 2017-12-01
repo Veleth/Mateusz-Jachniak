@@ -2,7 +2,7 @@ package chineseMateusz;
 
 public class PlayersFactory {
 
-    private PlayersFactory playersFactory;
+    private static PlayersFactory playersFactory;
 
     private PlayersFactory() {
     }
@@ -15,7 +15,7 @@ public class PlayersFactory {
         }
     }
 
-    public PlayersFactory getInstance() {
+    public static PlayersFactory getInstance() {
 
         if(playersFactory == null) {
             playersFactory = new PlayersFactory();
