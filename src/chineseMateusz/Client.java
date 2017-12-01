@@ -2,10 +2,9 @@ package chineseMateusz;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -17,8 +16,8 @@ import chineseMateusz.Pawn.PlayerColor;
 public class Client extends JFrame implements MouseListener{
 	Human player;
 	Socket socket = null;
-	PrintWriter out = null;
-	BufferedReader in = null;
+	ObjectOutputStream out = null;
+	ObjectInputStream in = null;
 
 
 	public static void main(String args[]){
@@ -34,14 +33,14 @@ public class Client extends JFrame implements MouseListener{
 	public void listenSocket(){
 		try {
 			socket = new Socket("localhost", 21372);
-			out = new PrintWriter(socket.getOutputStream(), true);
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			out = new ObjectOutputStream(socket.getOutputStream());
+			in = new ObjectInputStream(socket.getInputStream());
 		}
-		catch (UnknownHostException e) {
+		catch (UnknownHostException e){
 			JOptionPane.showMessageDialog(null, "Unknown host!", "ERROR", JOptionPane.ERROR_MESSAGE); 
 			System.exit(1);
 		}
-		catch (IOException e) {
+		catch (IOException e){
 			JOptionPane.showMessageDialog(null, "Could not establish connection with server!", "ERROR", JOptionPane.ERROR_MESSAGE); 
 			System.exit(1);
 		}
@@ -52,7 +51,7 @@ public class Client extends JFrame implements MouseListener{
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
+	public void mouseClicked(MouseEvent e){
 		int x = e.getX();
 		int y = e.getY();
 		//TODO: send to server
@@ -61,19 +60,19 @@ public class Client extends JFrame implements MouseListener{
 
 	//The remaining methods are not relevant, though they needed to be included in this class
 	@Override
-	public void mouseEntered(MouseEvent e) {
+	public void mouseEntered(MouseEvent e){
 	}
 
 	@Override
-	public void mouseExited(MouseEvent e) {		
+	public void mouseExited(MouseEvent e){		
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
+	public void mousePressed(MouseEvent e){
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e) {
+	public void mouseReleased(MouseEvent e){
 	}
 	
 }
