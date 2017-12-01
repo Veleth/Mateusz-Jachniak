@@ -61,7 +61,7 @@ protected Board board;
 		}
 		//TODO: Order the PlayerColors depending on the number of players
 	}
-
+	
 	private PlayerColor getPColor(int x, int j) {
 		PlayerColor [] colors = new PlayerColor[x];
 		switch (x){
