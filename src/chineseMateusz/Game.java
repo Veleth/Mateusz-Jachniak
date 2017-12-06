@@ -1,5 +1,6 @@
 package chineseMateusz;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -13,11 +14,11 @@ import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 public class Game{
 protected Player [] players;
 protected Board board;
-	
+protected Player activePlayer; //need to checking by server the moves - example game[0].checkPossibleMoves(activePlayer)
 	public void runGame() throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
 		Game g = new Game(6, 1); //TODO: needs to be changed so that the number of players can be customized
-		
-		do {
+
+        do {
 		//TODO: IMPLEMENT
 		//checkPossibleMoves();
 		//updateBoard();
@@ -47,19 +48,21 @@ protected Board board;
 	private void createGame(int x, int humans) {
 		createPlayers(x, humans);
 		board = new Board();
+		updateBoard(board);
 	}
 
-
-	private void createPlayers(int x, int humans) {
+    private void createPlayers(int x, int humans) {
 		players = new Player[x];
 		for (int i = 0; i < humans; i++){
 			players[i] = PlayersFactory.getInstance().createPlayer(true,"Player "+(i+1), getPColor(x, i));
+			setPlayerStartEnd(players[i]);
 		}
 		
 		for (int j = humans; j < x; j++){
 			players[j] = PlayersFactory.getInstance().createPlayer(false, "Bot "+(j-humans+1), getPColor(x, j));
+			setPlayerStartEnd(players[j]);
 		}
-		//TODO: Order the PlayerColors depending on the number of players
+
 	}
 	
 	private PlayerColor getPColor(int x, int j) {
@@ -71,21 +74,21 @@ protected Board board;
 				break;
 			case 3:
 				colors[0] = PlayerColor.BLUE;
-				colors[1] = PlayerColor.GREEN;
-				colors[2] = PlayerColor.ORANGE;
+				colors[1] = PlayerColor.ORANGE;
+				colors[2] = PlayerColor.GREEN;
 				break;
 			case 4:
-				colors[0] = PlayerColor.GREEN;
-				colors[1] = PlayerColor.YELLOW;
-				colors[2] = PlayerColor.ORANGE;
+				colors[0] = PlayerColor.YELLOW;
+				colors[1] = PlayerColor.ORANGE;
+				colors[2] = PlayerColor.GREEN;
 				colors[3] = PlayerColor.PINK;
 				break;
 			case 6:
 				colors[0] = PlayerColor.BLUE;
-				colors[1] = PlayerColor.RED;
-				colors[2] = PlayerColor.GREEN;
-				colors[3] = PlayerColor.YELLOW;
-				colors[4] = PlayerColor.ORANGE;
+				colors[1] = PlayerColor.YELLOW;
+				colors[2] = PlayerColor.ORANGE;
+				colors[3] = PlayerColor.RED;
+				colors[4] = PlayerColor.GREEN;
 				colors[5] = PlayerColor.PINK;
 				break;				
 		}
@@ -139,7 +142,7 @@ protected Board board;
 	}
 	
 	private void setEndCoordinates(Player p, boolean up, int x, int y) {
-		p.setEndCoordinates(new ArrayList<>());
+        ArrayList<int[]> coordinates = new ArrayList<>();
 		
 		int endPositions[][];
 		
@@ -152,8 +155,10 @@ protected Board board;
 		}
 		
 		for(int i = 0; i < endPositions.length; ++i) {
-			p.getEndCoordinates().add(endPositions[i]);
+			coordinates.add(endPositions[i]);
 		}
+
+		p.setEndCoordinates(coordinates);
 	}
 	
 	private void setPlayerStartEnd (Player p) {
@@ -187,6 +192,47 @@ protected Board board;
 			
 		}
 	}
+
+	private ArrayList<int[]> checkPossibleMoves (Player p) {
+        ArrayList<int[]> movesPossible = new ArrayList<>();
+
+	    for(int i = 0; i < p.pawns.length; ++i) {
+            int x = p.pawns[i].getX();
+            int y = p.pawns[i].getY();
+
+            int[][] closerCoordinates = {{x - 1, y - 1}, {x + 1, y - 1}, {x - 2, y}, {x + 2, y}, {x - 1, y + 1}, {x + 1, y + 1}};
+            int[][] furtherCoordinates = {{x - 2, y - 2}, {x + 2, y - 2}, {x - 4, y}, {x + 4, y}, {x - 2, y + 2}, {x + 2, y + 2}};
+
+            if(!(p.pawns[i].isInDestination())) {
+                for (int j = 0; j < closerCoordinates.length; ++j) {
+                    if (board.board[closerCoordinates[j][0]][closerCoordinates[j][1]] != Fields.NOTUSED) {
+                        if (board.board[closerCoordinates[j][0]][closerCoordinates[j][1]] == Fields.BUSY) {
+                            if (board.board[furtherCoordinates[j][0]][furtherCoordinates[j][1]] == Fields.EMPTY) {
+                                movesPossible.add(furtherCoordinates[j]);
+                            }
+                        } else {
+                            movesPossible.add(closerCoordinates[j]);
+                        }
+                    }
+                }
+            } else {
+                ArrayList<int[]> destCoordinates = p.getEndCoordinates();
+                for (int j = 0; j < closerCoordinates.length; ++j) {
+                    int xTemp = closerCoordinates[j][0];
+                    int yTemp = closerCoordinates[j][1];
+
+                    //TODO implement adding coordinates for pawns which are in destination
+                }
+
+            }
+
+        }
+        return movesPossible;
+    }
+
+    private void updateBoard(Board board) {
+	    //update board fields after every move
+    }
 	
 	protected boolean checkFinished (Player p) {
 		 ArrayList<int[]> tempEndCoord = p.getEndCoordinates();

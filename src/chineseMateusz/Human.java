@@ -9,10 +9,6 @@ public class Human extends Player {
 		setHuman(true);
 	}
 
-	@Override
-	protected void move() {
-		// TODO set arguments chosen and dest (to the arugments of the function)
-		 
-	}
+
 
 }

@@ -18,7 +18,6 @@ ServerSocket server = null;
 Socket client = null;
 ObjectInputStream in = null;
 ObjectOutputStream out = null;
-String line = "";
 
 public static void main(String[] args){
 

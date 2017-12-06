@@ -22,8 +22,6 @@ public abstract class Player {
 		place = -1;
 	}
 	
-	abstract protected void move(); //x1,x2,y1,y2 has to be added as arguments
-
 	public boolean hasFinished() {
 		return hasFinished;
 	}
