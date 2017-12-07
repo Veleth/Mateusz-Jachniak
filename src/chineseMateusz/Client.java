@@ -87,7 +87,7 @@ public class Client extends JFrame {
                     int[][] coordinates = {{x1, y1}, {x2, y2}};
                     out.writeObject(coordinates);
                     x1 = x2 = y1 = y2 = -1;
-                    //server takes first coordinates and checks possible moves to them
+                    //server takes first coordinates and checks possible moves to them - for: players saves to arraylist, another one with only a[0]=x and a[1]=y, server updates pawns
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

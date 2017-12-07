@@ -8,8 +8,7 @@ public class Bot extends Player {
 		super(name, playerColor);
 		setHuman(false);	
 	}
-	
-	@Override
+
 	protected void move(){
 		//TODO: A lot of work
 	}

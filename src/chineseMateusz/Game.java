@@ -14,20 +14,20 @@ import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 public class Game{
 protected Player [] players;
 protected Board board;
-protected Player activePlayer; //need to checking by server the moves - example game[0].checkPossibleMoves(activePlayer)
-	public void runGame() throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
-		Game g = new Game(6, 1); //TODO: needs to be changed so that the number of players can be customized
+protected Player activePlayer; //is needed to checking by server the moves - example game[0].checkPossibleMoves(activePlayer)
 
+    public void runGame() throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
+        Game g = new Game(6, 1);
         do {
 		//TODO: IMPLEMENT
-		//checkPossibleMoves();
+		//for players if player[i] not ended
+		//move();  TODO: HOW TO CONNECT THIS PART OF CODE WITH CLIENT?
 		//updateBoard();
 		//
 		}
-		while(!g.gameFinished());
+		while(!gameFinished());
 		//gameStats();
 	}
-
 
 	public Game(int x, int humans) throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
 		if (humans < 1 || humans > x){
@@ -205,23 +205,65 @@ protected Player activePlayer; //need to checking by server the moves - example 
 
             if(!(p.pawns[i].isInDestination())) {
                 for (int j = 0; j < closerCoordinates.length; ++j) {
-                    if (board.board[closerCoordinates[j][0]][closerCoordinates[j][1]] != Fields.NOTUSED) {
-                        if (board.board[closerCoordinates[j][0]][closerCoordinates[j][1]] == Fields.BUSY) {
-                            if (board.board[furtherCoordinates[j][0]][furtherCoordinates[j][1]] == Fields.EMPTY) {
-                                movesPossible.add(furtherCoordinates[j]);
+                    int xTemp =  closerCoordinates[j][0];
+                    int yTemp = closerCoordinates[j][1];
+                    if(xTemp < 0 || xTemp >= board.board.length || yTemp < 0 || yTemp >= board.board[0].length) {
+                        continue;
+                    }
+                    if (board.board[xTemp][yTemp] != Fields.NOTUSED) {
+                        if (board.board[xTemp][yTemp] == Fields.BUSY) {
+                            int xTemp2 =  furtherCoordinates[j][0];
+                            int yTemp2 = furtherCoordinates[j][1];
+                            if(xTemp2 < 0 || xTemp2 >= board.board.length || yTemp2 < 0 || yTemp2 >= board.board[0].length) {
+                                continue;
+                            }
+                            if (board.board[xTemp2][yTemp2] == Fields.EMPTY) {
+                                int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), furtherCoordinates[j][0], furtherCoordinates[j][1]};
+                                movesPossible.add(temp);
                             }
                         } else {
-                            movesPossible.add(closerCoordinates[j]);
+                            int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), closerCoordinates[j][0], closerCoordinates[j][1]};
+                            movesPossible.add(temp);
                         }
                     }
                 }
             } else {
                 ArrayList<int[]> destCoordinates = p.getEndCoordinates();
                 for (int j = 0; j < closerCoordinates.length; ++j) {
-                    int xTemp = closerCoordinates[j][0];
+                    int xTemp =  closerCoordinates[j][0];
                     int yTemp = closerCoordinates[j][1];
+                    if(xTemp < 0 || xTemp >= board.board.length || yTemp < 0 || y >= board.board[0].length) {
+                        continue;
+                    }
+                    if (board.board[xTemp][yTemp] != Fields.NOTUSED) {
+                        if (board.board[xTemp][yTemp] == Fields.BUSY) {
+                            int xTemp2 =  furtherCoordinates[j][0];
+                            int yTemp2 = furtherCoordinates[j][1];
+                            if(xTemp2 < 0 || xTemp2 >= board.board.length || yTemp2 < 0 || yTemp2 >= board.board[0].length) {
+                                continue;
+                            }
+                            if (board.board[xTemp2][yTemp2] == Fields.EMPTY) {
 
-                    //TODO implement adding coordinates for pawns which are in destination
+                                for(int[] c : destCoordinates) {
+                                    if(c[0] == furtherCoordinates[j][0] && c[1] == furtherCoordinates[j][1]) {
+                                        int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), furtherCoordinates[j][0], furtherCoordinates[j][1]};
+                                        movesPossible.add(temp);
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+
+                            for(int[] c : destCoordinates) {
+                                if(c[0] == closerCoordinates[j][0] && c[1] == closerCoordinates[j][1]) {
+                                    int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), closerCoordinates[j][0], closerCoordinates[j][1]};
+                                    movesPossible.add(temp);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
                 }
 
             }
@@ -231,7 +273,15 @@ protected Player activePlayer; //need to checking by server the moves - example 
     }
 
     private void updateBoard(Board board) {
-	    //update board fields after every move
+	    board.prepareBoard();
+
+	    for(Player player : players) {
+	        for(Pawn pawn : player.pawns) {
+	            int x = pawn.getX();
+	            int y = pawn.getY();
+	            board.board[x][y] = Fields.BUSY;
+            }
+        }
     }
 	
 	protected boolean checkFinished (Player p) {

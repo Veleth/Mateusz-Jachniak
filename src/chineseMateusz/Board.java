@@ -5,13 +5,13 @@ public class Board {
 		NOTUSED, EMPTY, BUSY;
 	}
 	
-	Fields board[][];
+	protected Fields board[][];
 	
 	public Board() {
 		prepareBoard();
 	}
 	
-	private void prepareBoard() {
+	protected void prepareBoard() {
 		board = new Fields[25][17];
 		
 		for(int y = 0; y < board[0].length; ++y) {
