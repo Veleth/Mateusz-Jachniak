@@ -12,24 +12,39 @@ import chineseMateuszExceptions.InvalidNumberOfHumansException;
 import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
 public class Game{
-protected Player [] players;
-protected Board board;
-protected Player activePlayer; //is needed to checking by server the moves - example game[0].checkPossibleMoves(activePlayer)
+
+    protected Player[] players;
+    protected Board board;
+    private Player activePlayer; //is needed to checking by server the moves - example game[0].checkPossibleMoves(activePlayer)
+    int availablePlace;
 
     public void runGame() throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
         Game g = new Game(6, 1);
         do {
 		//TODO: IMPLEMENT
 		//for players if player[i] not ended
+		//checkpossibleMoves(active) if arraylist not empty continue iteration
 		//move();  TODO: HOW TO CONNECT THIS PART OF CODE WITH CLIENT?
 		//updateBoard();
-		//
+		//if(checkfinished(active)) then active.setPlace(availablePlace); availablePlace++; active.setFinished=true;
 		}
 		while(!gameFinished());
-		//gameStats();
+
+        gameStats();
 	}
 
-	public Game(int x, int humans) throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
+    private void gameStats() {
+        System.out.println("Miejsca -");
+        for(int i = 1; i <= players.length; ++i) {
+            for(int j = 0; j < players.length; ++j) {
+                if(players[j].getPlace() == i) {
+                    System.out.println(players[j].getName() + " - msc " + i);
+                }
+            }
+        }
+    }
+
+    public Game(int x, int humans) throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
 		if (humans < 1 || humans > x){
 			throw new InvalidNumberOfHumansException(humans);
 		}
@@ -47,8 +62,9 @@ protected Player activePlayer; //is needed to checking by server the moves - exa
 	
 	private void createGame(int x, int humans) {
 		createPlayers(x, humans);
-		board = new Board();
-		updateBoard(board);
+		board = new Board(players);
+		board.updateBoard();
+		availablePlace = 1;
 	}
 
     private void createPlayers(int x, int humans) {
@@ -271,18 +287,6 @@ protected Player activePlayer; //is needed to checking by server the moves - exa
         }
         return movesPossible;
     }
-
-    private void updateBoard(Board board) {
-	    board.prepareBoard();
-
-	    for(Player player : players) {
-	        for(Pawn pawn : player.pawns) {
-	            int x = pawn.getX();
-	            int y = pawn.getY();
-	            board.board[x][y] = Fields.BUSY;
-            }
-        }
-    }
 	
 	protected boolean checkFinished (Player p) {
 		 ArrayList<int[]> tempEndCoord = p.getEndCoordinates();
@@ -299,7 +303,7 @@ protected Player activePlayer; //is needed to checking by server the moves - exa
 				 }
 			 }
 		 }
-		 
+
 		 return tempEndCoord.isEmpty();	 
 	}
 	

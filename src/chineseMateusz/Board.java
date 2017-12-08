@@ -6,13 +6,15 @@ public class Board {
 	}
 	
 	protected Fields board[][];
+    private Player[] players;
 	
-	public Board() {
-		prepareBoard();
+	public Board(Player[] players) {
+        board = new Fields[25][17];
+        this.players = players;
+        prepareBoard();
 	}
 	
-	protected void prepareBoard() {
-		board = new Fields[25][17];
+	private void prepareBoard() {
 		
 		for(int y = 0; y < board[0].length; ++y) {
 			for(int x = 0; x < board.length; ++x) {
@@ -30,4 +32,16 @@ public class Board {
 			}
 		}
 	}
+
+    public void updateBoard() {
+        prepareBoard();
+
+        for(Player player : players) {
+            for(Pawn pawn : player.pawns) {
+                int x = pawn.getX();
+                int y = pawn.getY();
+                board[x][y] = Fields.BUSY;
+            }
+        }
+    }
 }
