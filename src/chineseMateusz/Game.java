@@ -19,7 +19,6 @@ public class Game{
     int availablePlace;
 
     public void runGame() throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
-        Game g = new Game(6, 1);
         do {
 		//TODO: IMPLEMENT
 		//for players if player[i] not ended

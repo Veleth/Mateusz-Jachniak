@@ -8,7 +8,4 @@ public class Human extends Player {
 		super(name, playerColor);
 		setHuman(true);
 	}
-
-
-
 }

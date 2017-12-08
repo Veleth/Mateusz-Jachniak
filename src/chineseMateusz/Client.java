@@ -17,26 +17,51 @@ import chineseMateusz.Pawn.PlayerColor;
 public class Client extends JFrame {
 
     private Board board;
-	private Human player;
 	private int x1, y1, x2, y2;
+	private int gameNum;
+	private Human currPlayer;
+	private boolean isGameActive;
+	
 	Socket socket = null;
 	ObjectOutputStream out = null;
 	ObjectInputStream in = null;
 
-	public static void main(String args[]){
-		Human p = new Human("TEST", PlayerColor.PINK); //TODO: Player must be sent from server, how to receive board from Game??
-		Client window = new Client(p, new Board(new Player[6]));
+	public static void main(String args[]) throws ClassNotFoundException, IOException, InterruptedException{
+		Client window = new Client();
 		window.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		window.setVisible(true);
 		window.setResizable(false);
 		window.setLocation(500, 200);
 		window.listenSocket();
+		window.initialize();
+		window.play();
+		System.exit(0);
 	}
 
-	public Client(Human h, Board b){
-		super("Chinese Checkers, "+ h.getName());
-		this.board = b;
-		this.player = h;
+	private void play() throws ClassNotFoundException, IOException, InterruptedException {
+		while(isGameActive){
+			if(in.readObject() instanceof Human){
+				//TODO:Move the Human
+			}
+			else if (in.readObject() instanceof Board){
+				board = (Board)in.readObject();
+				//TODO:Repaint
+			}
+			else if (in.readObject().getClass().isArray()){
+				//TODO: Print the ranking
+				Thread.sleep(2000);
+				isGameActive=false;
+			}
+		}
+	}
+
+	private void initialize() {
+		//TODO: Exchange data with the server, initialize the game (# of players, game number, etc.)
+	}
+
+	public Client(){
+		super("Chinese Checkers Client");
+		isGameActive=true;
 		addMouseListener(new MyMouseAdapter());
 	}
 
@@ -59,8 +84,8 @@ public class Client extends JFrame {
 
     protected boolean isPawn(int x, int y) {
 
-	    for(int i = 0; i < player.pawns.length; ++i) {
-            if(x == player.pawns[i].getX() && y == player.pawns[i].getY()) {
+	    for(int i = 0; i < currPlayer.pawns.length; ++i) {
+            if(x == currPlayer.pawns[i].getX() && y == currPlayer.pawns[i].getY()) {
                 return true;
             }
         }
