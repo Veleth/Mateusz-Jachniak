@@ -1,7 +1,11 @@
 package chineseMateusz;
 
-public class Pawn {
-	public enum PlayerColor{
+import java.io.Serializable;
+
+public class Pawn implements Serializable {
+    private static final long serialVersionUID = 710503720867017887L;
+
+    public enum PlayerColor{
 		BLUE, RED, GREEN, YELLOW, ORANGE, PINK;
 	}
 	

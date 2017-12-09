@@ -1,12 +1,15 @@
 package chineseMateusz;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import chineseMateusz.Pawn.PlayerColor;
 import chineseMateuszExceptions.BadCoordinateException;
 
-public abstract class Player {
-	private String name;
+public abstract class Player implements Serializable{
+    private static final long serialVersionUID = -7335349467728601104L;
+
+    private String name;
 	private PlayerColor playerColor;
 	private boolean isHuman;
 	private boolean hasFinished;
