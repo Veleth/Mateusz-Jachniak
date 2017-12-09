@@ -11,7 +11,7 @@ import chineseMateuszExceptions.BadCoordinateException;
 import chineseMateuszExceptions.InvalidNumberOfHumansException;
 import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
-public class Game{
+public class Game {
 
     protected Player[] players;
     protected Board board;
@@ -21,33 +21,47 @@ public class Game{
     public void runGame() throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
         do {
 		//TODO: IMPLEMENT
-		//for players if player[i] not ended
-		//checkpossibleMoves(active) if arraylist not empty continue iteration
-		//move();  TODO: HOW TO CONNECT THIS PART OF CODE WITH CLIENT?
-		//updateBoard();
-		//if(checkfinished(active)) then active.setPlace(availablePlace); availablePlace++; active.setFinished=true;
+            for(Player p : players) {
+                if(!p.hasFinished()) {
+                    ArrayList<int[]> moves = checkPossibleMoves(p);
+                    if(moves.isEmpty()) {
+                        //komunikat
+                        continue;
+                    }
+                    //move
+                    board.updateBoard();
+
+                    if (checkFinished(activePlayer)) {
+                        activePlayer.setPlace(availablePlace);
+                        availablePlace++;
+                        activePlayer.setFinished(true);
+                    }
+                }
+            }
 		}
 		while(!gameFinished());
 
         gameStats();
 	}
 
-    private void gameStats() {
-        System.out.println("Miejsca -");
+    private String gameStats() {
+        String stats = "";
+        stats = stats.concat("Miejsca -\n");
         for(int i = 1; i <= players.length; ++i) {
             for(int j = 0; j < players.length; ++j) {
                 if(players[j].getPlace() == i) {
-                    System.out.println(players[j].getName() + " - msc " + i);
+                    stats = stats.concat(players[j].getName() + " - msc " + i + "\n");
                 }
             }
         }
+        return stats;
     }
 
     public Game(int x, int humans) throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
-		if (humans < 1 || humans > x){
+		if (humans < 1 || humans > x) {
 			throw new InvalidNumberOfHumansException(humans);
 		}
-		switch (x){
+		switch (x) {
 			case 2:
 			case 3:
 			case 4: 
@@ -110,9 +124,9 @@ public class Game{
 		return colors[j];
 	}
 
-	public boolean gameFinished(){
-		for (Player p : players){
-			if(!p.hasFinished()){
+	public boolean gameFinished() {
+		for (Player p : players) {
+			if(!p.hasFinished()) {
 				return false;
 			}
 		}
@@ -123,9 +137,9 @@ public class Game{
 		return players[x];
 	}
 	
-	public void placePawns (Player p, boolean up, int x, int y) throws BadCoordinateException {
+	private void placePawns (Player p, boolean up, int x, int y) throws BadCoordinateException {
 		
-		int startPositions[][] = {{12,0,1},{4,7,0},{4,9,1},{12,16,0},{21,7,0},{21,9,1}};
+		int startPositions[][] = {{12,0,1},{3,7,0},{3,9,1},{12,16,0},{21,7,0},{21,9,1}};
 		boolean goodCoordinate = false;
 		
 		for(int i = 0; i < startPositions.length; ++i) {
@@ -188,19 +202,19 @@ public class Game{
 				setEndCoordinates(p, true, 12, 0);
 				break;
 			case GREEN:
-				placePawns(p, true, 4, 9);
+				placePawns(p, true, 3, 9);
 				setEndCoordinates(p, false, 21, 7);
 				break;
 			case YELLOW:
 				placePawns(p, false, 21, 7);
-				setEndCoordinates(p, true, 4, 9);
+				setEndCoordinates(p, true, 3, 9);
 				break;
 			case ORANGE:
 				placePawns(p, true, 21, 9);
-				setEndCoordinates(p, false, 4, 7);
+				setEndCoordinates(p, false, 3, 7);
 				break;
 			case PINK:
-				placePawns(p, false, 4, 7);
+				placePawns(p, false, 3, 7);
 				setEndCoordinates(p, true, 21, 9);	
 			}
 		} catch (BadCoordinateException e) {
@@ -208,7 +222,7 @@ public class Game{
 		}
 	}
 
-	private ArrayList<int[]> checkPossibleMoves (Player p) {
+	ArrayList<int[]> checkPossibleMoves(Player p) {
         ArrayList<int[]> movesPossible = new ArrayList<>();
 
 	    for(int i = 0; i < p.pawns.length; ++i) {

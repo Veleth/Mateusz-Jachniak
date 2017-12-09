@@ -9,11 +9,14 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import chineseMateusz.Pawn.PlayerColor;
-//TODO: Ask if the client should be in the same package as the rest of the classes
+import chineseMateuszExceptions.InvalidNumberOfHumansException;
+import chineseMateuszExceptions.InvalidNumberOfPlayersException;
+
+import static java.lang.System.exit;
+
 public class Client extends JFrame {
 
     private Board board;
@@ -26,46 +29,27 @@ public class Client extends JFrame {
 	ObjectOutputStream out = null;
 	ObjectInputStream in = null;
 
-	public static void main(String args[]) throws ClassNotFoundException, IOException, InterruptedException{
-		Client window = new Client();
-		window.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		window.setVisible(true);
-		window.setResizable(false);
-		window.setLocation(500, 200);
-		window.listenSocket();
-		window.initialize();
-		window.play();
-		System.exit(0);
-	}
+    public Client() {
+	    super("Chinese Checkers Client");
+        isGameActive = true;
+        addMouseListener(new MyMouseAdapter());
+    }
 
-	private void play() throws ClassNotFoundException, IOException, InterruptedException {
-		while(isGameActive){
-			if(in.readObject() instanceof Human){
-				//TODO:Move the Human
-			}
-			else if (in.readObject() instanceof Board){
-				board = (Board)in.readObject();
-				//TODO:Repaint
-			}
-			else if (in.readObject().getClass().isArray()){
-				//TODO: Print the ranking
-				Thread.sleep(2000);
-				isGameActive=false;
-			}
-		}
-	}
+    public void setGUI() {
+	    add(board);
+	    setDefaultCloseOperation(EXIT_ON_CLOSE);
+	    setLocation(100,100);
+	    setSize(600,600);
+        setResizable(false);
+        setVisible(true);
+    }
 
-	private void initialize() {
-		//TODO: Exchange data with the server, initialize the game (# of players, game number, etc.)
-	}
+    public void communication() throws InterruptedException, IOException, ClassNotFoundException {
+	    listenSocket();
+	    initialize();
+    }
 
-	public Client(){
-		super("Chinese Checkers Client");
-		isGameActive=true;
-		addMouseListener(new MyMouseAdapter());
-	}
-
-    public void listenSocket(){
+    private void listenSocket() {
         try {
             socket = new Socket("localhost", 21372);
             out = new ObjectOutputStream(socket.getOutputStream());
@@ -74,17 +58,128 @@ public class Client extends JFrame {
         }
         catch (UnknownHostException e){
             JOptionPane.showMessageDialog(null, "Unknown host!", "ERROR", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
+            exit(1);
         }
         catch (IOException e){
             JOptionPane.showMessageDialog(null, "Could not establish connection with server!", "ERROR", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
+            exit(1);
         }
     }
 
-    protected boolean isPawn(int x, int y) {
+    private void initialize() throws IOException, ClassNotFoundException {
+        try {
+            int players = amountOfPlayers();
+            int humans = amountOfHumans(players);
+            int amounts[] = {players, humans};
+            out.writeObject(amounts);
 
-	    for(int i = 0; i < currPlayer.pawns.length; ++i) {
+            //sleep - time for init the game?
+
+            Object temp = in.readObject();
+            if(!(temp instanceof Number)) {
+                exit(-1);
+            }
+            gameNum = (int) temp;
+
+            Object tempBoard = in.readObject();
+            if(!(tempBoard instanceof Board)) {
+                exit(-1);
+            }
+            board = (Board) tempBoard;
+
+            out.writeObject(gameNum);
+
+        } catch (NumberFormatException e) {
+            exit(-1);
+        }
+    }
+
+    private int amountOfPlayers() {
+        String[] values = {"2", "3", "4", "6"};
+
+        Object selected = JOptionPane.showInputDialog(null, "How many players?", "Selection", JOptionPane.DEFAULT_OPTION, null, values, "2");
+        if ( selected == null ) {
+            exit(-1);
+        }
+
+        return Integer.parseInt(selected.toString());
+    }
+
+    private int amountOfHumans(int players) {
+        String[] values = new String[players-1];
+
+        for(int i = 1; i < players; ++i) {
+            values[i-1] = i + "";
+        }
+
+        Object selected = JOptionPane.showInputDialog(null, "How many humans?", "Selection", JOptionPane.DEFAULT_OPTION, null, values, "1");
+        if ( selected == null ) {
+            exit(-1);
+        }
+
+        return Integer.parseInt(selected.toString());
+    }
+
+    public void play() throws ClassNotFoundException, IOException, InterruptedException {
+
+	    while(isGameActive) {
+		    Object temp;
+		    if((temp = in.readObject()) != null) {
+                if (temp instanceof Human) {
+                    currPlayer = (Human) temp;
+
+                } else if (temp instanceof Board) {
+                    board = (Board) in.readObject();
+                    board.repaint();
+
+                } else if (temp.getClass().isArray()) {
+                    System.out.println("Game ended"); //TODO Print results
+                    Thread.sleep(2000);
+                    isGameActive = false;
+                }
+            }
+		}
+	}
+
+    public void closeStreams() throws IOException {
+        in.close();
+        out.close();
+        socket.close();
+    }
+
+    class MyMouseAdapter extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e){
+			if(currPlayer == null) {
+                return;
+            }
+            if(x1 == -1 && y1 == -1) {
+                    x1 = e.getX();
+                    y1 = e.getY();
+
+                    if(!(isPawn(x1, y1))) {
+                        x1 = y1 = -1;
+                    }
+                System.out.println("Pawn marked");//paint x1, y1
+                } else {
+                    try {
+                        x2 = e.getX();
+                        y2 = e.getY();
+                        int[] coordinates = {1, x1, y1, x2, y2}; //1 is a number of the game, it will be extended for many clients
+                        out.writeObject(coordinates);
+                        x1 = x2 = y1 = y2 = -1;
+                        currPlayer = null;
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+		}
+
+
+    private boolean isPawn(int x, int y) {
+
+        for(int i = 0; i < currPlayer.pawns.length; ++i) {
             if(x == currPlayer.pawns[i].getX() && y == currPlayer.pawns[i].getY()) {
                 return true;
             }
@@ -92,35 +187,4 @@ public class Client extends JFrame {
 
         return false;
     }
-
-	class MyMouseAdapter extends MouseAdapter {
-		@Override
-		public void mouseClicked(MouseEvent e){
-			if(x1 == -1 && y1 == -1) {
-			    x1 = e.getX();
-			    y1 = e.getY();
-
-			    if(!(isPawn(x1, y1))) {
-			        x1 = y1 = -1;
-                }
-                //paint x1, y1
-            } else {
-                try {
-                    x2 = e.getX();
-                    y2 = e.getY();
-                    int[][] coordinates = {{x1, y1}, {x2, y2}};
-                    out.writeObject(coordinates);
-                    x1 = x2 = y1 = y2 = -1;
-                    //server takes first coordinates and checks possible moves to them - for: players saves to arraylist, another one with only a[0]=x and a[1]=y, server updates pawns
-                    //board.updateboard()
-                    //repaint
-
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-
-		}
-	}
-
 }
