@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import chineseMateuszExceptions.BadCoordinateException;
-import chineseMateuszExceptions.GameAlreadyInitedException;
+import chineseMateuszExceptions.GameException;
 import chineseMateuszExceptions.InvalidNumberOfHumansException;
 import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
@@ -27,19 +27,27 @@ public class Server {
         System.out.println("Server works!");
     }
 
-    public void listenSocket() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, GameAlreadyInitedException {
+    public void listenSocket() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, InterruptedException, GameException {
         while(true) {
             Socket s = server.accept();
             setFirstPlayer(s);
 
             for(int i = 1; i < game.humansAmount; ++i) {
-                game.players[i] = PlayersFactory.getInstance().createHuman(game, server.accept(), game.getPColor(game.players.length, i));
+                Socket s1 = server.accept();
+                setAnotherPlayers(i, s1);
+                System.out.println("sda");
             }
+
             for(int i = game.humansAmount; i < game.players.length; ++i) {
                 game.players[i] = PlayersFactory.getInstance().createBot(game.getPColor(game.players.length, i));
             }
-            //serwer podlacza wszystkich ludzi
-            // zaczyna startowac watski, w watku na poczatku getBoard()
+
+            for(int i = 0; i < game.humansAmount; ++i) {
+                Thread t = new Thread((Human) game.players[i]);
+                t.start();
+            }
+
+            game.playGame();
 
         }
     }
@@ -49,22 +57,27 @@ public class Server {
         System.out.println("Server ends work!");
     }
 
-    public void setFirstPlayer(Socket s) throws IOException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, ClassNotFoundException, GameAlreadyInitedException {
-        ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-        ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+    public void setFirstPlayer(Socket s) throws IOException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, ClassNotFoundException, GameException {
+
 
         if(game == null) {
-            out.writeObject(-1);
-            Object o = in.readObject();
-            int[] temp = (int[]) o;
-            game = new Game(temp[0], temp[1]);
+            game = new Game(4, 2); // na razie na sztywno
             game.players[0] = PlayersFactory.getInstance().createHuman(game, s, game.getPColor(game.players.length,0));
+
         } else {
-            throw new GameAlreadyInitedException();
+            throw new GameException();
         }
 
-        out.close();
-        in.close();
+    }
+
+    public void setAnotherPlayers(int i, Socket s) throws IOException, GameException {
+
+
+        if(game == null) {
+            throw new GameException();
+        }
+
+        game.players[i] = PlayersFactory.getInstance().createHuman(game, s, game.getPColor(game.players.length, i));
     }
 }
 

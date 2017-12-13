@@ -65,21 +65,20 @@ public class Client extends JFrame {
 
     private void initialize() throws IOException, ClassNotFoundException {
         try {
-            int readValue = (int) in.readObject(); //1st message received, if -1 new game created, no - added to created prev gm
+            /*int readValue = (int) in.readObject(); //1st message received, if -1 new game created, no - added to created prev gm
             if(readValue == -1) {
                 int players = amountOfPlayers();
                 int humans = amountOfHumans(players);
                 int amounts[] = {players, humans};
                 out.writeObject(amounts);
             }
-
-            //wait for all//
-
-
+*/
             Object temp = in.readObject();
 
             if(temp instanceof Board) {
                 board = (Board) temp;
+                System.out.println("odebralem boarda");
+
             } else {
                 throw new ClassNotFoundException();
             }
@@ -91,7 +90,7 @@ public class Client extends JFrame {
 
     public void play() {
         while(true) {
-
+//odbieranie komunikatow
         }
     }
 
