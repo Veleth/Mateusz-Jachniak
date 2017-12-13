@@ -14,18 +14,9 @@ public class Bot extends Player implements Serializable{
     public Bot (PlayerColor playerColor){
     	super(playerColor);
 		setHuman(false);
-		double targetDist = 0;
-		//find the farthest end coord
-		int[] pawnCoords = {this.pawns[0].getX(), this.pawns[0].getY()};
-		for (int[] endCoord: this.getEndCoordinates()){
-			if(findTarget(pawnCoords, endCoord) > targetDist){
-				targetDist = findTarget(pawnCoords, endCoord);
-				target = endCoord;
-			}
-		}
 	}
 
-	protected int[] move(ArrayList<int[]> possibleMoves){
+	public int[] move(ArrayList<int[]> possibleMoves){
 		Random rand = new Random();
         double maxdist = 0;
         ArrayList<int[]> bestMoves = new ArrayList<>();
@@ -48,10 +39,11 @@ public class Bot extends Player implements Serializable{
         }
 	}
 	
-	private double findTarget(int[] pawn, int[] endC){
-			return Math.sqrt(Math.pow((pawn[0]-endC[0]), 2)+Math.pow((pawn[1]-endC[1]), 2));
-	}
 	private double findDist(int[] startC, int[] endC){
 		return (Math.sqrt(Math.pow((startC[0]-endC[0]), 2)+Math.pow((startC[1]-endC[1]), 2)) - Math.sqrt(Math.pow((startC[2]-endC[0]), 2)+Math.pow((startC[3]-endC[1]), 2)));
+	}
+	
+	public int[] getTarget(){
+		return target;
 	}
 }

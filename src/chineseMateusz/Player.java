@@ -12,8 +12,8 @@ public abstract class Player {
 	private boolean isHuman;
 	private boolean hasFinished;
 	private int place;
-
 	protected Pawn[] pawns;
+	
 	private ArrayList<int[]> endCoordinates;
 	
 	public Player(PlayerColor playerColor) {
@@ -58,4 +58,7 @@ public abstract class Player {
 		this.endCoordinates = endCoordinates;
 	}
 	
+	public Pawn getPawn(int x){
+		return this.pawns[x];
+	}
 }
