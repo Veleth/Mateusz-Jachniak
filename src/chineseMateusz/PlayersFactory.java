@@ -2,6 +2,7 @@ package chineseMateusz;
 
 import chineseMateuszExceptions.BadCoordinateException;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -12,7 +13,7 @@ public class PlayersFactory {
     private PlayersFactory() {
     }
 
-    public Human createHuman(Game g, Socket s, Pawn.PlayerColor playerColor) {
+    public Human createHuman(Game g, Socket s, Pawn.PlayerColor playerColor) throws IOException {
         Human human = new Human(g, s, playerColor);
         setPlayerStartEnd(human);
         return human;
@@ -21,6 +22,15 @@ public class PlayersFactory {
     public Bot createBot(Pawn.PlayerColor playerColor) {
         Bot bot = new Bot(playerColor);
         setPlayerStartEnd(bot);
+		double targetDist = 0;
+		//find the farthest end coord
+		int[] pawnCoords = {bot.pawns[0].getX(), bot.pawns[0].getY()};
+		for (int[] endCoord: bot.getEndCoordinates()){
+			if(findTarget(pawnCoords, endCoord) > targetDist){
+				targetDist = findTarget(pawnCoords, endCoord);
+				bot.target = endCoord;
+			}
+		}
         return bot;
     }
 
@@ -117,4 +127,7 @@ public class PlayersFactory {
 
         }
     }
+	private double findTarget(int[] pawn, int[] endC){
+		return Math.sqrt(Math.pow((pawn[0]-endC[0]), 2)+Math.pow((pawn[1]-endC[1]), 2));
+}
 }
