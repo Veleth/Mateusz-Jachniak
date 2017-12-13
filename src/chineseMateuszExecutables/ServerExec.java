@@ -10,7 +10,6 @@ public class ServerExec {
         try {
             Server server = new Server();
             server.listenSocket();
-            server.clientServerCommunication();
             server.closeStreams();
             exit(0);
         } catch(Exception e) {

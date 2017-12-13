@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import chineseMateusz.Pawn.PlayerColor;
 import chineseMateuszExceptions.BadCoordinateException;
 
-public abstract class Player implements Serializable{
-    private static final long serialVersionUID = -7335349467728601104L;
+public abstract class Player {
 
-    private String name;
 	private PlayerColor playerColor;
 	private boolean isHuman;
 	private boolean hasFinished;
@@ -18,8 +16,7 @@ public abstract class Player implements Serializable{
 	protected Pawn[] pawns;
 	private ArrayList<int[]> endCoordinates;
 	
-	public Player(String name, PlayerColor playerColor) {
-		this.name = name;
+	public Player(PlayerColor playerColor) {
 		this.playerColor = playerColor;
 		hasFinished = false;
 		place = -1;
@@ -39,10 +36,6 @@ public abstract class Player implements Serializable{
 
 	public void setPlace(int place) {
 		this.place = place;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public void setHuman(boolean isHuman) {

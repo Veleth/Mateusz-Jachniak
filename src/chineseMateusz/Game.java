@@ -1,7 +1,10 @@
 package chineseMateusz;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Observer;
 
 import javax.swing.JFrame;
 
@@ -14,48 +17,10 @@ import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 public class Game {
 
     protected Player[] players;
+    int humansAmount;
     protected Board board;
-    private Player activePlayer; //is needed to checking by server the moves - example game[0].checkPossibleMoves(activePlayer)
     int availablePlace;
-
-    public void runGame() throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
-        do {
-		//TODO: IMPLEMENT
-            for(Player p : players) {
-                if(!p.hasFinished()) {
-                    ArrayList<int[]> moves = checkPossibleMoves(p);
-                    if(moves.isEmpty()) {
-                        //komunikat
-                        continue;
-                    }
-                    //move
-                    board.updateBoard();
-
-                    if (checkFinished(activePlayer)) {
-                        activePlayer.setPlace(availablePlace);
-                        availablePlace++;
-                        activePlayer.setFinished(true);
-                    }
-                }
-            }
-		}
-		while(!gameFinished());
-
-        gameStats();
-	}
-
-    private String gameStats() {
-        String stats = "";
-        stats = stats.concat("Miejsca -\n");
-        for(int i = 1; i <= players.length; ++i) {
-            for(int j = 0; j < players.length; ++j) {
-                if(players[j].getPlace() == i) {
-                    stats = stats.concat(players[j].getName() + " - msc " + i + "\n");
-                }
-            }
-        }
-        return stats;
-    }
+    int[] currentMove;
 
     public Game(int x, int humans) throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
 		if (humans < 1 || humans > x) {
@@ -66,7 +31,8 @@ public class Game {
 			case 3:
 			case 4: 
 			case 6:
-			createGame(x, humans);
+            humansAmount = humans;
+			createGame(x, humansAmount);
 			break;
 			default: throw new InvalidNumberOfPlayersException(x);
 		}
@@ -74,27 +40,69 @@ public class Game {
 	}
 	
 	private void createGame(int x, int humans) {
-		createPlayers(x, humans);
+		players = new Player[x];
+		humansAmount = humans;
 		board = new Board(players);
 		board.updateBoard();
 		availablePlace = 1;
 	}
 
-    private void createPlayers(int x, int humans) {
-		players = new Player[x];
-		for (int i = 0; i < humans; i++){
-			players[i] = PlayersFactory.getInstance().createPlayer(true,"Player "+(i+1), getPColor(x, i));
-			setPlayerStartEnd(players[i]);
-		}
-		
-		for (int j = humans; j < x; j++){
-			players[j] = PlayersFactory.getInstance().createPlayer(false, "Bot "+(j-humans+1), getPColor(x, j));
-			setPlayerStartEnd(players[j]);
-		}
+    public void playGame() throws InterruptedException, IOException, ClassNotFoundException {
+        int index = (int) (Math.random() * players.length);
+        do {
+            for(int i = index; i < index + players.length; ++i) {
+                i = i % players.length;
 
-	}
-	
-	private PlayerColor getPColor(int x, int j) {
+                if(!(players[i].hasFinished())) {
+                    ArrayList<int[]> moves = checkPossibleMoves(players[i]);
+
+                    if(moves.isEmpty()) {
+                        //informacja
+                        continue;
+                    }
+
+                    if(players[i] instanceof Human) {
+                        Human currPlayer = (Human) players[i];
+                        boolean moved = false;
+
+                        while(!moved) {
+                            int[] move = currPlayer.move();
+                            //if checkpossiblemoves conatins move
+                            //curMove = move;
+                            //set everything
+                            //send to all and moved=T
+                        }
+
+
+                    } else {
+                        Bot currBot = (Bot) players[i];
+                        currentMove = currBot.move(checkPossibleMoves(players[i]));
+                    }
+
+                    if (checkFinished(players[i])) {
+                        players[i].setPlace(availablePlace);
+                        availablePlace++;
+                        players[i].setFinished(true);
+                    }
+                }
+            }
+        } while(!gameFinished());
+    }
+
+    public String gameStats() {
+        String stats = "";
+        stats = stats.concat("Miejsca -\n");
+        for(int i = 1; i <= players.length; ++i) {
+            for(int j = 0; j < players.length; ++j) {
+                if(players[j].getPlace() == i) {
+                    stats = stats.concat("Player " + j + " - msc " + i + "\n");
+                }
+            }
+        }
+        return stats;
+    }
+
+	public PlayerColor getPColor(int x, int j) {
 		PlayerColor [] colors = new PlayerColor[x];
 		switch (x){
 			case 2:
@@ -135,91 +143,6 @@ public class Game {
 	
 	public Player getPlayer(int x){
 		return players[x];
-	}
-	
-	private void placePawns (Player p, boolean up, int x, int y) throws BadCoordinateException {
-		
-		int startPositions[][] = {{12,0,1},{3,7,0},{3,9,1},{12,16,0},{21,7,0},{21,9,1}};
-		boolean goodCoordinate = false;
-		
-		for(int i = 0; i < startPositions.length; ++i) {
-			if(x == startPositions[i][0] && y == startPositions[i][1] && ((up)?(1):(0)) == startPositions[i][2]) {
-				goodCoordinate = true;
-				break;
-			}
-		}
-		
-		if(!(goodCoordinate)) {
-			throw new BadCoordinateException(x, y);
-		}
-		
-		int pawnsPositions[][];
-		
-		if(up) {
-			int upPositions[][] = {{x,y},{x-1,y+1},{x+1,y+1},{x-2,y+2},{x,y+2},{x+2,y+2},{x-3,y+3},{x-1,y+3},{x+1,y+3},{x+3,y+3}}; 
-			pawnsPositions = upPositions;
-		} else {
-			int downPositions[][] = {{x,y},{x-1,y-1},{x+1,y-1},{x-2,y-2},{x,y-2},{x+2,y-2},{x-3,y-3},{x-1,y-3},{x+1,y-3},{x+3,y-3}}; 
-			pawnsPositions = downPositions;
-		}
-		
-		p.pawns = new Pawn[10]; 
-		
-		for(int i = 0; i < pawnsPositions.length; ++i) {
-			p.pawns[i] = new Pawn(p.getPlayerColor(), pawnsPositions[i][0], pawnsPositions[i][1]);
-		}
-	}
-	
-	private void setEndCoordinates(Player p, boolean up, int x, int y) {
-        ArrayList<int[]> coordinates = new ArrayList<>();
-		
-		int endPositions[][];
-		
-		if(up) {
-			int upPositions[][] = {{x,y},{x-1,y+1},{x+1,y+1},{x-2,y+2},{x,y+2},{x+2,y+2},{x-3,y+3},{x-1,y+3},{x+1,y+3},{x+3,y+3}}; 
-			endPositions = upPositions;
-		} else {
-			int downPositions[][] = {{x,y},{x-1,y-1},{x+1,y-1},{x-2,y-2},{x,y-2},{x+2,y-2},{x-3,y-3},{x-1,y-3},{x+1,y-3},{x+3,y-3}}; 
-			endPositions = downPositions;
-		}
-		
-		for(int i = 0; i < endPositions.length; ++i) {
-			coordinates.add(endPositions[i]);
-		}
-
-		p.setEndCoordinates(coordinates);
-	}
-	
-	private void setPlayerStartEnd (Player p) {
-		try {
-			switch(p.getPlayerColor()) {
-			case BLUE:
-				placePawns(p, true, 12, 0);
-				setEndCoordinates(p, false, 12, 16);
-				break;
-			case RED:
-				placePawns(p, false, 12, 16);
-				setEndCoordinates(p, true, 12, 0);
-				break;
-			case GREEN:
-				placePawns(p, true, 3, 9);
-				setEndCoordinates(p, false, 21, 7);
-				break;
-			case YELLOW:
-				placePawns(p, false, 21, 7);
-				setEndCoordinates(p, true, 3, 9);
-				break;
-			case ORANGE:
-				placePawns(p, true, 21, 9);
-				setEndCoordinates(p, false, 3, 7);
-				break;
-			case PINK:
-				placePawns(p, false, 3, 7);
-				setEndCoordinates(p, true, 21, 9);	
-			}
-		} catch (BadCoordinateException e) {
-			
-		}
 	}
 
 	ArrayList<int[]> checkPossibleMoves(Player p) {
@@ -319,6 +242,7 @@ public class Game {
 
 		 return tempEndCoord.isEmpty();	 
 	}
-	
+
+
 }
 

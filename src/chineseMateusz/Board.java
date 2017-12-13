@@ -12,8 +12,8 @@ public class Board extends JPanel implements Serializable{
 		NOTUSED, EMPTY, BUSY;
 	}
 	
-	protected Fields board[][];
-    private Player[] players;
+	Fields board[][];
+    Player[] players;
     HashMap<Pawn.PlayerColor, Color> colors;
 	
 	public Board(Player[] players) {
@@ -70,8 +70,8 @@ public class Board extends JPanel implements Serializable{
 
         int height = board[0].length;
         int width = board.length;
-        int scaleY = 500 / height;
-        int scaleX = 500 / width;
+        int scaleY = 476 / height;
+        int scaleX = 700 / width;
         boolean alreadyDrawn;
 
         for(int y=0; y<height; ++y)
@@ -79,13 +79,9 @@ public class Board extends JPanel implements Serializable{
             {
                 switch(board[x][y])
                 {
-                    case NOTUSED:
-                        //g2d.setColor(Color.GRAY);
-                        //g2d.fillRect(10+x*scaleX, 10+y*scaleY, scaleX, scaleY);
-                        break;
                     case EMPTY:
                         g2d.setColor(Color.GRAY);
-                        g2d.fillOval(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
+                        g2d.fillRect(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
                         break;
                     case BUSY:
                         alreadyDrawn = false;
@@ -93,7 +89,7 @@ public class Board extends JPanel implements Serializable{
                             for(Pawn pw : pl.pawns) {
                                 if(pw.getX() == x && pw.getY() == y) {
                                     g2d.setColor(colors.get(pl.getPlayerColor()));
-                                    g2d.fillOval(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
+                                    g2d.fillRect(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
                                     alreadyDrawn = true;
                                     break;
                                 }
@@ -105,8 +101,6 @@ public class Board extends JPanel implements Serializable{
                         break;
                 }
 
-               // g2d.setColor(Color.BLACK);
-               // g2d.drawRect(10+x*scaleX, 10+y*scaleY, scaleX, scaleY);
             }
     }
 }
