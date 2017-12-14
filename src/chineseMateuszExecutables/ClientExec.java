@@ -9,8 +9,6 @@ public class ClientExec {
 
         try {
             Client window = new Client();
-            window.communication();
-            window.setGUI();
             window.play();
             window.closeStreams();
             exit(0);

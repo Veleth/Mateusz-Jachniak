@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 
+import chineseMateuszExceptions.BadCoordinateException;
 import org.junit.Test;
 
 import chineseMateusz.Bot;
@@ -17,7 +18,7 @@ import chineseMateusz.Pawn.PlayerColor;
 public class BotTest {
 
 	@Test
-	public void constructorTest() {
+	public void constructorTest() throws BadCoordinateException {
 		Bot b = PlayersFactory.getInstance().createBot(PlayerColor.BLUE);
 
 		assertFalse(b.isHuman());
@@ -37,7 +38,7 @@ public class BotTest {
 	}
 	
 	@Test
-	public void moveTest(){
+	public void moveTest() throws BadCoordinateException {
 		Bot bot = PlayersFactory.getInstance().createBot(PlayerColor.RED);
 		
 		ArrayList<int[]> moves = new ArrayList<>();
