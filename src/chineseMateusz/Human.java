@@ -5,15 +5,19 @@ import chineseMateusz.Pawn.PlayerColor;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
-public class Human extends Player implements Runnable {
+public class Human extends Player implements Runnable, Serializable {
+
+    private static final long serialVersionUID = -8499720961482595815L;
 
     private Game game;
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private boolean isMoving;
+    private Player[] players;
 
     public Human(Game game, Socket socket, PlayerColor playerColor) throws IOException {
 		super(playerColor);
@@ -28,8 +32,8 @@ public class Human extends Player implements Runnable {
     @Override
     public void run() {
         try {
-            out.writeObject(game.getBoard());
-            System.out.println("wyslalem boarda");
+
+
             while (true) {
                 if (isMoving) {
 
@@ -57,6 +61,11 @@ public class Human extends Player implements Runnable {
         out.writeObject(move);
     }
 
+    public void sendBoardToClient(Board board) throws IOException {
+        out.writeObject(board);
+        System.out.println("wyslalem boarda");
+    }
+
     private boolean isPawn(int x, int y) {
 
         for(int i = 0; i < pawns.length; ++i) {
@@ -66,4 +75,5 @@ public class Human extends Player implements Runnable {
         }
         return false;
     }
+
 }

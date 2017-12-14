@@ -12,9 +12,6 @@ import java.util.Observer;
 
 import javax.swing.*;
 
-import chineseMateusz.Pawn.PlayerColor;
-import chineseMateuszExceptions.InvalidNumberOfHumansException;
-import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
 import static java.lang.System.exit;
 
@@ -27,9 +24,12 @@ public class Client extends JFrame {
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
 
-    public Client() {
+    public Client() throws IOException, ClassNotFoundException {
 	    super("Chinese Checkers Client");
         addMouseListener(new MyMouseAdapter());
+        listenSocket();
+        initialize();
+        setGUI();
     }
 
     public void setGUI() {
@@ -69,15 +69,26 @@ public class Client extends JFrame {
             if(readValue == -1) {
                 int players = amountOfPlayers();
                 int humans = amountOfHumans(players);
-                int amounts[] = {players, humans};
+                int amounts[] = {players, humans}; //TODO ogarnij to wysylanie ilosci graczy
                 out.writeObject(amounts);
             }
 */
+
             Object temp = in.readObject();
 
             if(temp instanceof Board) {
                 board = (Board) temp;
-                System.out.println("odebralem boarda");
+                for(int i=0; i<board.board[0].length; ++i) {
+                    for(int j=0; j<board.board.length; ++j) {
+                        if(board.board[j][i] == Board.Fields.BUSY) {
+                            System.out.print("X");
+                        }
+                        else {
+                            System.out.print(" ");
+                        }
+                    }
+                    System.out.println();
+                }
 
             } else {
                 throw new ClassNotFoundException();

@@ -13,24 +13,16 @@ public class PlayersFactory {
     private PlayersFactory() {
     }
 
-    public Human createHuman(Game g, Socket s, Pawn.PlayerColor playerColor) throws IOException {
+    public Human createHuman(Game g, Socket s, Pawn.PlayerColor playerColor) throws IOException, BadCoordinateException {
         Human human = new Human(g, s, playerColor);
         setPlayerStartEnd(human);
         return human;
     }
 
-    public Bot createBot(Pawn.PlayerColor playerColor) {
+    public Bot createBot(Pawn.PlayerColor playerColor) throws BadCoordinateException {
         Bot bot = new Bot(playerColor);
         setPlayerStartEnd(bot);
-		double targetDist = 0;
-		//find the farthest end coord
-		int[] pawnCoords = {bot.pawns[0].getX(), bot.pawns[0].getY()};
-		for (int[] endCoord: bot.getEndCoordinates()){
-			if(findTarget(pawnCoords, endCoord) > targetDist){
-				targetDist = findTarget(pawnCoords, endCoord);
-				bot.target = endCoord;
-			}
-		}
+		setTarget(bot);
         return bot;
     }
 
@@ -96,8 +88,8 @@ public class PlayersFactory {
         p.setEndCoordinates(coordinates);
     }
 
-    private void setPlayerStartEnd (Player p) {
-        try {
+    private void setPlayerStartEnd (Player p) throws BadCoordinateException {
+
             switch(p.getPlayerColor()) {
                 case BLUE:
                     placePawns(p, true, 12, 0);
@@ -122,12 +114,23 @@ public class PlayersFactory {
                 case PINK:
                     placePawns(p, false, 3, 7);
                     setEndCoordinates(p, true, 21, 9);
-            }
-        } catch (BadCoordinateException e) {
-
         }
     }
-	private double findTarget(int[] pawn, int[] endC){
+
+    private void setTarget(Bot bot) {
+
+        double targetDist = 0;
+        //find the farthest end coord
+        int[] pawnCoords = {bot.pawns[0].getX(), bot.pawns[0].getY()};
+        for (int[] endCoord: bot.getEndCoordinates()){
+            if(findTarget(pawnCoords, endCoord) > targetDist){
+                targetDist = findTarget(pawnCoords, endCoord);
+                bot.target = endCoord;
+            }
+        }
+    }
+
+	private double findTarget(int[] pawn, int[] endC) {
 		return Math.sqrt(Math.pow((pawn[0]-endC[0]), 2)+Math.pow((pawn[1]-endC[1]), 2));
-}
+    }
 }

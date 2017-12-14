@@ -1,6 +1,7 @@
 package chineseMateusz;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,8 +15,9 @@ import chineseMateuszExceptions.BadCoordinateException;
 import chineseMateuszExceptions.InvalidNumberOfHumansException;
 import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
-public class Game {
+public class Game implements Serializable {
 
+    private static final long serialVersionUID = 5063734558649943931L;
     protected Player[] players;
     int humansAmount;
     protected Board board;
@@ -31,8 +33,7 @@ public class Game {
 			case 3:
 			case 4: 
 			case 6:
-            humansAmount = humans;
-			createGame(x, humansAmount);
+			    createGame(x, humans);
 			break;
 			default: throw new InvalidNumberOfPlayersException(x);
 		}
@@ -40,11 +41,10 @@ public class Game {
 	}
 	
 	private void createGame(int x, int humans) {
-		players = new Player[x];
-		humansAmount = humans;
-		board = new Board(players);
-		board.updateBoard();
-		availablePlace = 1;
+        players = new Player[x];
+        humansAmount = humans;
+        availablePlace = 1;
+
 	}
 
     public void playGame() throws InterruptedException, IOException, ClassNotFoundException {
@@ -61,19 +61,40 @@ public class Game {
                         continue;
                     }
 
-                    if(players[i] instanceof Human) {
+                    if(players[i].isHuman()) {
                         Human currPlayer = (Human) players[i];
                         boolean moved = false;
 
                         while(!moved) {
                             int[] move = currPlayer.move();
-                            //if checkpossiblemoves conatins move
-                            //curMove = move;
-                            //set everything
-                            //send to all and moved=T
+                            boolean goodMove = false;
+                            for(int[] m : moves) {
+                                 if(m[0] == move[0] && m[1] == move[1] && m[2] == move[2] && m[3] == move[3]) {
+                                     goodMove = true;
+                                     currentMove = move;
+                                     break;
+                                 }
+                            }
+                            if(!goodMove) {
+                                continue;
+                            }
+
+                            for(Pawn p : players[i].pawns) {
+                                if(p.getX() == currentMove[0] && p.getY() == currentMove[1]) {
+                                    p.setPos(currentMove[2], currentMove[3]);
+                                    board.board[currentMove[0]][currentMove[1]] = Fields.EMPTY;
+                                    board.board[currentMove[2]][currentMove[3]] = Fields.BUSY;
+                                    board.updateBoard();
+                                }
+                            }
+
+                            for(Player p : players) {
+                                if(p instanceof Human) {
+                                    (( Human) p).sendMoveToClient(currentMove);
+                                }
+                            }
+                            moved = true;
                         }
-
-
                     } else {
                         Bot currBot = (Bot) players[i];
                         currentMove = currBot.move(checkPossibleMoves(players[i]));
@@ -102,35 +123,7 @@ public class Game {
         return stats;
     }
 
-	public PlayerColor getPColor(int x, int j) {
-		PlayerColor [] colors = new PlayerColor[x];
-		switch (x){
-			case 2:
-				colors[0] = PlayerColor.BLUE;
-				colors[1] = PlayerColor.RED;
-				break;
-			case 3:
-				colors[0] = PlayerColor.BLUE;
-				colors[1] = PlayerColor.ORANGE;
-				colors[2] = PlayerColor.GREEN;
-				break;
-			case 4:
-				colors[0] = PlayerColor.YELLOW;
-				colors[1] = PlayerColor.ORANGE;
-				colors[2] = PlayerColor.GREEN;
-				colors[3] = PlayerColor.PINK;
-				break;
-			case 6:
-				colors[0] = PlayerColor.BLUE;
-				colors[1] = PlayerColor.YELLOW;
-				colors[2] = PlayerColor.ORANGE;
-				colors[3] = PlayerColor.RED;
-				colors[4] = PlayerColor.GREEN;
-				colors[5] = PlayerColor.PINK;
-				break;				
-		}
-		return colors[j];
-	}
+
 
 	public boolean gameFinished() {
 		for (Player p : players) {
@@ -139,10 +132,6 @@ public class Game {
 			}
 		}
 		return true;
-	}
-	
-	public Player getPlayer(int x){
-		return players[x];
 	}
 
 	ArrayList<int[]> checkPossibleMoves(Player p) {
@@ -243,6 +232,42 @@ public class Game {
 		 return tempEndCoord.isEmpty();	 
 	}
 
+    public PlayerColor getPColor(int x, int j) {
+        PlayerColor [] colors = new PlayerColor[x];
+        switch (x){
+            case 2:
+                colors[0] = PlayerColor.BLUE;
+                colors[1] = PlayerColor.RED;
+                break;
+            case 3:
+                colors[0] = PlayerColor.BLUE;
+                colors[1] = PlayerColor.ORANGE;
+                colors[2] = PlayerColor.GREEN;
+                break;
+            case 4:
+                colors[0] = PlayerColor.YELLOW;
+                colors[1] = PlayerColor.ORANGE;
+                colors[2] = PlayerColor.GREEN;
+                colors[3] = PlayerColor.PINK;
+                break;
+            case 6:
+                colors[0] = PlayerColor.BLUE;
+                colors[1] = PlayerColor.YELLOW;
+                colors[2] = PlayerColor.ORANGE;
+                colors[3] = PlayerColor.RED;
+                colors[4] = PlayerColor.GREEN;
+                colors[5] = PlayerColor.PINK;
+                break;
+        }
+        return colors[j];
+    }
 
+    public Player getPlayer(int x){
+        return players[x];
+    }
+
+    public Board getBoard() {
+        return board;
+    }
 }
 

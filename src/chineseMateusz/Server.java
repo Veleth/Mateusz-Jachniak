@@ -1,21 +1,14 @@
 package chineseMateusz;
 
-import java.awt.*;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-
-import javax.swing.JOptionPane;
-
 import chineseMateuszExceptions.BadCoordinateException;
 import chineseMateuszExceptions.GameException;
 import chineseMateuszExceptions.InvalidNumberOfHumansException;
 import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
-import static java.lang.System.exit;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.HashMap;
 
 public class Server {
 
@@ -27,7 +20,8 @@ public class Server {
         System.out.println("Server works!");
     }
 
-    public void listenSocket() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, InterruptedException, GameException {
+    public void listenSocket() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, InterruptedException, GameException, BadCoordinateException {
+
         while(true) {
             Socket s = server.accept();
             setFirstPlayer(s);
@@ -35,11 +29,19 @@ public class Server {
             for(int i = 1; i < game.humansAmount; ++i) {
                 Socket s1 = server.accept();
                 setAnotherPlayers(i, s1);
-                System.out.println("sda");
             }
 
             for(int i = game.humansAmount; i < game.players.length; ++i) {
                 game.players[i] = PlayersFactory.getInstance().createBot(game.getPColor(game.players.length, i));
+            }
+
+            HashMap<Pawn[], Pawn.PlayerColor> boardMap = new HashMap<>();
+            initBoardMap(boardMap);
+            game.board = new Board(boardMap);
+            game.board.updateBoard();
+
+            for(int i = 0; i < game.humansAmount; ++i) {
+                ((Human) game.players[i]).sendBoardToClient(game.board);
             }
 
             for(int i = 0; i < game.humansAmount; ++i) {
@@ -48,7 +50,13 @@ public class Server {
             }
 
             game.playGame();
+        }
+    }
 
+    private void initBoardMap(HashMap<Pawn[], Pawn.PlayerColor> boardMap) {
+
+        for(Player p : game.players) {
+             boardMap.put(p.pawns, p.getPlayerColor());
         }
     }
 
@@ -57,11 +65,11 @@ public class Server {
         System.out.println("Server ends work!");
     }
 
-    public void setFirstPlayer(Socket s) throws IOException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, ClassNotFoundException, GameException {
+    public void setFirstPlayer(Socket s) throws IOException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, ClassNotFoundException, GameException, BadCoordinateException {
 
 
         if(game == null) {
-            game = new Game(4, 2); // na razie na sztywno
+            game = new Game(4, 2); // TODO na razie na sztywno
             game.players[0] = PlayersFactory.getInstance().createHuman(game, s, game.getPColor(game.players.length,0));
 
         } else {
@@ -70,9 +78,9 @@ public class Server {
 
     }
 
-    public void setAnotherPlayers(int i, Socket s) throws IOException, GameException {
+    public void setAnotherPlayers(int i, Socket s) throws IOException, GameException, BadCoordinateException {
 
-
+//TODO przekazuj info jak w 1 playerze
         if(game == null) {
             throw new GameException();
         }

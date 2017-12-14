@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Board extends JPanel implements Serializable{
     private static final long serialVersionUID = -5139437953272450049L;
@@ -13,12 +14,13 @@ public class Board extends JPanel implements Serializable{
 	}
 	
 	Fields board[][];
-    Player[] players;
+
     HashMap<Pawn.PlayerColor, Color> colors;
-	
-	public Board(Player[] players) {
+	HashMap<Pawn[], Pawn.PlayerColor> pawns;
+
+	public Board(HashMap<Pawn[], Pawn.PlayerColor> pawns) {
         board = new Fields[25][17];
-        this.players = players;
+        this.pawns = pawns;
         setColors();
         prepareBoard();
 	}
@@ -55,10 +57,10 @@ public class Board extends JPanel implements Serializable{
     public void updateBoard() {
         prepareBoard();
 
-        for(Player player : players) {
-            for(Pawn pawn : player.pawns) {
-                int x = pawn.getX();
-                int y = pawn.getY();
+        for(Map.Entry<Pawn[], Pawn.PlayerColor> map : pawns.entrySet()) {
+            for(Pawn p : map.getKey()) {
+                int x = p.getX();
+                int y = p.getY();
                 board[x][y] = Fields.BUSY;
             }
         }
@@ -81,15 +83,15 @@ public class Board extends JPanel implements Serializable{
                 {
                     case EMPTY:
                         g2d.setColor(Color.GRAY);
-                        g2d.fillRect(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
+                        g2d.fillOval(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
                         break;
                     case BUSY:
                         alreadyDrawn = false;
-                        for(Player pl : players) {
-                            for(Pawn pw : pl.pawns) {
-                                if(pw.getX() == x && pw.getY() == y) {
-                                    g2d.setColor(colors.get(pl.getPlayerColor()));
-                                    g2d.fillRect(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
+                        for(Map.Entry<Pawn[], Pawn.PlayerColor> map : pawns.entrySet()) {
+                            for(Pawn p : map.getKey()) {
+                                if(p.getX() == x && p.getY() == y) {
+                                    g2d.setColor(colors.get(map.getValue()));
+                                    g2d.fillOval(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
                                     alreadyDrawn = true;
                                     break;
                                 }
