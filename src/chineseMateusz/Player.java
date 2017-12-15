@@ -61,4 +61,8 @@ public abstract class Player {
 	public Pawn getPawn(int x){
 		return this.pawns[x];
 	}
+	
+	public Pawn[] getPawns(){
+		return this.pawns;
+	}
 }

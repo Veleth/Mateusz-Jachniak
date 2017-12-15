@@ -13,7 +13,7 @@ public class Board extends JPanel implements Serializable {
 		NOTUSED, EMPTY, BUSY
 	}
 	
-	Fields board[][];
+	private Fields board[][];
 
     HashMap<Pawn.PlayerColor, Color> colors;
 	HashMap<Pawn[], Pawn.PlayerColor> pawns;
@@ -120,5 +120,8 @@ public class Board extends JPanel implements Serializable {
 
             }
         }
+    }
+    public Fields[][] getBoard(){
+    	return this.board;
     }
 }
