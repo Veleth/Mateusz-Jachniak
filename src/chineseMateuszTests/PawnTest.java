@@ -2,10 +2,16 @@ package chineseMateuszTests;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.junit.Test;
 
+import chineseMateusz.Bot;
 import chineseMateusz.Pawn;
+import chineseMateusz.PlayersFactory;
 import chineseMateusz.Pawn.PlayerColor;
+import chineseMateuszExceptions.BadCoordinateException;
 
 public class PawnTest {
 
@@ -19,4 +25,25 @@ public class PawnTest {
 		assertFalse(p.isInDestination());
 	}
 
+	@Test
+	public void advancedTest() throws BadCoordinateException{
+		Bot x = PlayersFactory.getInstance().createBot(PlayerColor.BLUE);
+		Bot xy = PlayersFactory.getInstance().createBot(PlayerColor.BLUE);
+		HashMap <Pawn[], Pawn.PlayerColor> h = new HashMap <>();
+		HashMap <Pawn[], Pawn.PlayerColor> hb = new HashMap <>();
+		h.put(x.getPawns(),x.getPlayerColor());
+		hb.put(xy.getPawns(), xy.getPlayerColor());
+
+		ArrayList<Pawn[]> arr = new ArrayList<Pawn[]>(h.keySet());
+		ArrayList<Pawn[]> arg = new ArrayList<Pawn[]>(hb.keySet());
+		
+//		System.out.println(arr.get(0).getClass());
+		Pawn p = arr.get(0)[0];
+//		System.out.println(p.getX());
+		Pawn tmp = arg.get(0)[0];
+		p.setPos(0, 0);
+//		System.out.println(tmp.getX());
+		assertNotSame(p.getX(), tmp.getX());
+
+	}
 }
