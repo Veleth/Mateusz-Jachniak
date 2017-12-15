@@ -1,17 +1,14 @@
 package chineseMateusz;
 
+import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Observer;
-
-import javax.swing.*;
-
+import java.util.Map;
 
 import static java.lang.System.exit;
 
@@ -39,11 +36,6 @@ public class Client extends JFrame {
 	    setSize(780,600);
         setResizable(false);
         setVisible(true);
-    }
-
-    public void communication() throws InterruptedException, IOException, ClassNotFoundException {
-	    listenSocket();
-	    initialize();
     }
 
     private void listenSocket() {
@@ -78,17 +70,6 @@ public class Client extends JFrame {
 
             if(temp instanceof Board) {
                 board = (Board) temp;
-                for(int i=0; i<board.board[0].length; ++i) {
-                    for(int j=0; j<board.board.length; ++j) {
-                        if(board.board[j][i] == Board.Fields.BUSY) {
-                            System.out.print("X");
-                        }
-                        else {
-                            System.out.print(" ");
-                        }
-                    }
-                    System.out.println();
-                }
 
             } else {
                 throw new ClassNotFoundException();
@@ -99,9 +80,38 @@ public class Client extends JFrame {
         }
     }
 
-    public void play() {
+    public void play() throws IOException, ClassNotFoundException {
+
         while(true) {
-//odbieranie komunikatow
+
+            Object o = in.readObject();
+
+            if(o.getClass().isArray()) {
+                int[] move = (int[]) o;
+
+                if(move.length == 4) {
+                    boolean updated = false;
+
+                    for (Map.Entry<Pawn[], Pawn.PlayerColor> map : board.pawns.entrySet()) {
+                        for(Pawn p : map.getKey()) {
+                            if(move[0] == p.getX() && move[1] == p.getY()) {
+                                p.setPos(move[2], move[3]);
+                                board.updateBoard();
+                                updated = true;
+                                break;
+                            }
+                        }
+                        if(updated) {
+                            board.repaint();
+                            break;
+                        }
+                    }
+                } else {
+                     throw new IOException();
+                }
+            } else if (true) { //TODO get arguemnts for ending game, move another player
+
+            }
         }
     }
 
@@ -140,8 +150,8 @@ public class Client extends JFrame {
     class MyMouseAdapter extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent e) {
-                int scaleY = 476 / board.board[0].length;
-                int scaleX = 700 / board.board.length;
+                int scaleY = 476 / board.getBoard()[0].length;
+                int scaleX = 700 / board.getBoard().length;
 
                 if (x1 == -1 && y1 == -1) {
                     x1 = (e.getX() - 37) / scaleX;
@@ -154,6 +164,7 @@ public class Client extends JFrame {
 
                         int[] coordinates = {x1, y1, x2, y2};
                         out.writeObject(coordinates);
+
                         x1 = x2 = y1 = y2 = -1;
                     } catch (IOException e1) {
                         e1.printStackTrace();

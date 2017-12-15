@@ -17,7 +17,7 @@ public class Human extends Player implements Runnable, Serializable {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private boolean isMoving;
-    private Player[] players;
+    private volatile int[] currentMove;
 
     public Human(Game game, Socket socket, PlayerColor playerColor) throws IOException {
 		super(playerColor);
@@ -33,17 +33,19 @@ public class Human extends Player implements Runnable, Serializable {
     public void run() {
         try {
 
-
             while (true) {
+                Object o = in.readObject();
+
                 if (isMoving) {
-
-                    Object o = in.readObject();
-
                     if (o.getClass().isArray()) {
                         int[] tempArray = (int[]) o;
-                        //bierze ruch, isPawn paczy i jak okej to przypisuje do currentMove
 
-                        //zeruje currentMove, a wysyla tylko gdy currentMove nie jest nulem
+                        if(!(isPawn(tempArray[0], tempArray[1]))) {
+                            continue;
+                        }
+
+                        currentMove = tempArray;
+                        isMoving = false;
                     }
                 }
             }
@@ -54,7 +56,11 @@ public class Human extends Player implements Runnable, Serializable {
     }
 
     public int[] move() {
-        return null; //to implement
+
+        while (currentMove == null) {
+        }
+
+        return currentMove;
     }
 
     public void sendMoveToClient(int[] move) throws IOException {
@@ -63,7 +69,6 @@ public class Human extends Player implements Runnable, Serializable {
 
     public void sendBoardToClient(Board board) throws IOException {
         out.writeObject(board);
-        System.out.println("wyslalem boarda");
     }
 
     private boolean isPawn(int x, int y) {
@@ -74,6 +79,14 @@ public class Human extends Player implements Runnable, Serializable {
             }
         }
         return false;
+    }
+
+    public void nullCurrentMove() {
+        currentMove = null;
+    }
+
+    public void setisMoving(boolean isMoving) {
+        this.isMoving = isMoving;
     }
 
 }

@@ -44,7 +44,6 @@ public class Game implements Serializable {
         players = new Player[x];
         humansAmount = humans;
         availablePlace = 1;
-
 	}
 
     public void playGame() throws InterruptedException, IOException, ClassNotFoundException {
@@ -54,39 +53,40 @@ public class Game implements Serializable {
                 i = i % players.length;
 
                 if(!(players[i].hasFinished())) {
-                    ArrayList<int[]> moves = checkPossibleMoves(players[i]);
 
+                    ArrayList<int[]> moves = checkPossibleMoves(players[i]);
+                    System.out.println(players[i].getPlayerColor());
                     if(moves.isEmpty()) {
-                        //informacja
+                        //TODO informacja, że nie ma dostepnego ruchu
                         continue;
                     }
 
                     if(players[i].isHuman()) {
+                        for(int[] m : moves) {
+                            System.out.println("Ruch - " + m[0] + " " + m[1] + "->" + m[2] + " " + m[3]);
+                        }
+                        System.out.println("\n");
                         Human currPlayer = (Human) players[i];
                         boolean moved = false;
 
                         while(!moved) {
+                            currPlayer.setisMoving(true);
                             int[] move = currPlayer.move();
                             boolean goodMove = false;
                             for(int[] m : moves) {
                                  if(m[0] == move[0] && m[1] == move[1] && m[2] == move[2] && m[3] == move[3]) {
+                                     System.out.println("RUSZAM");
                                      goodMove = true;
                                      currentMove = move;
                                      break;
                                  }
                             }
+                            currPlayer.nullCurrentMove();
                             if(!goodMove) {
                                 continue;
                             }
 
-                            for(Pawn p : players[i].pawns) {
-                                if(p.getX() == currentMove[0] && p.getY() == currentMove[1]) {
-                                    p.setPos(currentMove[2], currentMove[3]);
-                                    board.board[currentMove[0]][currentMove[1]] = Fields.EMPTY;
-                                    board.board[currentMove[2]][currentMove[3]] = Fields.BUSY;
-                                    board.updateBoard();
-                                }
-                            }
+                            checkingPawnsDestination(players[i]);
 
                             for(Player p : players) {
                                 if(p instanceof Human) {
@@ -94,10 +94,24 @@ public class Game implements Serializable {
                                 }
                             }
                             moved = true;
+                            currPlayer.setisMoving(false);
                         }
                     } else {
                         Bot currBot = (Bot) players[i];
                         currentMove = currBot.move(checkPossibleMoves(players[i]));
+
+                        if(currentMove == null) {
+                            //spasowal
+                            continue;
+                        }
+
+                        checkingPawnsDestination(players[i]);
+
+                        for(Player p : players) {
+                            if(p instanceof Human) {
+                                (( Human) p).sendMoveToClient(currentMove);
+                            }
+                        }
                     }
 
                     if (checkFinished(players[i])) {
@@ -148,17 +162,17 @@ public class Game implements Serializable {
                 for (int j = 0; j < closerCoordinates.length; ++j) {
                     int xTemp =  closerCoordinates[j][0];
                     int yTemp = closerCoordinates[j][1];
-                    if(xTemp < 0 || xTemp >= board.board.length || yTemp < 0 || yTemp >= board.board[0].length) {
+                    if(xTemp < 0 || xTemp >= board.getBoard().length || yTemp < 0 || yTemp >= board.getBoard()[0].length) {
                         continue;
                     }
-                    if (board.board[xTemp][yTemp] != Fields.NOTUSED) {
-                        if (board.board[xTemp][yTemp] == Fields.BUSY) {
+                    if (board.getBoard()[xTemp][yTemp] != Fields.NOTUSED) {
+                        if (board.getBoard()[xTemp][yTemp] == Fields.BUSY) {
                             int xTemp2 =  furtherCoordinates[j][0];
                             int yTemp2 = furtherCoordinates[j][1];
-                            if(xTemp2 < 0 || xTemp2 >= board.board.length || yTemp2 < 0 || yTemp2 >= board.board[0].length) {
+                            if(xTemp2 < 0 || xTemp2 >= board.getBoard().length || yTemp2 < 0 || yTemp2 >= board.getBoard()[0].length) {
                                 continue;
                             }
-                            if (board.board[xTemp2][yTemp2] == Fields.EMPTY) {
+                            if (board.getBoard()[xTemp2][yTemp2] == Fields.EMPTY) {
                                 int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), furtherCoordinates[j][0], furtherCoordinates[j][1]};
                                 movesPossible.add(temp);
                             }
@@ -173,17 +187,17 @@ public class Game implements Serializable {
                 for (int j = 0; j < closerCoordinates.length; ++j) {
                     int xTemp =  closerCoordinates[j][0];
                     int yTemp = closerCoordinates[j][1];
-                    if(xTemp < 0 || xTemp >= board.board.length || yTemp < 0 || y >= board.board[0].length) {
+                    if(xTemp < 0 || xTemp >= board.getBoard().length || yTemp < 0 || yTemp >= board.getBoard()[0].length) {
                         continue;
                     }
-                    if (board.board[xTemp][yTemp] != Fields.NOTUSED) {
-                        if (board.board[xTemp][yTemp] == Fields.BUSY) {
+                    if (board.getBoard()[xTemp][yTemp] != Fields.NOTUSED) {
+                        if (board.getBoard()[xTemp][yTemp] == Fields.BUSY) {
                             int xTemp2 =  furtherCoordinates[j][0];
                             int yTemp2 = furtherCoordinates[j][1];
-                            if(xTemp2 < 0 || xTemp2 >= board.board.length || yTemp2 < 0 || yTemp2 >= board.board[0].length) {
+                            if(xTemp2 < 0 || xTemp2 >= board.getBoard().length || yTemp2 < 0 || yTemp2 >= board.getBoard()[0].length) {
                                 continue;
                             }
-                            if (board.board[xTemp2][yTemp2] == Fields.EMPTY) {
+                            if (board.getBoard()[xTemp2][yTemp2] == Fields.EMPTY) {
 
                                 for(int[] c : destCoordinates) {
                                     if(c[0] == furtherCoordinates[j][0] && c[1] == furtherCoordinates[j][1]) {
@@ -208,28 +222,29 @@ public class Game implements Serializable {
                 }
 
             }
-
         }
         return movesPossible;
     }
 	
 	protected boolean checkFinished (Player p) {
 		 ArrayList<int[]> tempEndCoord = p.getEndCoordinates();
-		 
+
+         int counter = 0;
 		 for(int i = 0; i < p.pawns.length; ++i) {
 			 int coordinates[] = new int[2];
 			 coordinates[0] = p.pawns[i].getX();
 			 coordinates[1] = p.pawns[i].getY();
-			 
+
+
 			 for(int j = 0; j < tempEndCoord.size(); ++j) {
 				 if(tempEndCoord.get(i)[0] == coordinates[0] && tempEndCoord.get(i)[1] == coordinates[1]) {
-					 tempEndCoord.remove(i);
+					 counter++;
 					 break;
 				 }
 			 }
 		 }
 
-		 return tempEndCoord.isEmpty();	 
+		 return (counter == tempEndCoord.size());
 	}
 
     public PlayerColor getPColor(int x, int j) {
@@ -268,6 +283,25 @@ public class Game implements Serializable {
 
     public Board getBoard() {
         return board;
+    }
+
+    private void checkingPawnsDestination(Player player) {
+        for(Pawn p : player.pawns) {
+            if(p.getX() == currentMove[0] && p.getY() == currentMove[1]) {
+                p.setPos(currentMove[2], currentMove[3]);
+
+                for(int[] endPos: player.getEndCoordinates()) {
+                    if(endPos[0] == p.getX() && endPos[1] == p.getY()) {
+                        p.setinDestination(true);
+                        break;
+                    }
+                }
+
+                board.getBoard()[currentMove[0]][currentMove[1]] = Fields.EMPTY;
+                board.getBoard()[currentMove[2]][currentMove[3]] = Fields.BUSY;
+                board.updateBoard();
+            }
+        }
     }
 }
 

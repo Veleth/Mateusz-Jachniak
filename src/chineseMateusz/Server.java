@@ -41,7 +41,7 @@ public class Server {
             game.board.updateBoard();
 
             for(int i = 0; i < game.humansAmount; ++i) {
-                ((Human) game.players[i]).sendBoardToClient(game.board);
+                ((Human) game.players[i]).sendBoardToClient(game.getBoard());
             }
 
             for(int i = 0; i < game.humansAmount; ++i) {
@@ -65,11 +65,11 @@ public class Server {
         System.out.println("Server ends work!");
     }
 
-    public void setFirstPlayer(Socket s) throws IOException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, ClassNotFoundException, GameException, BadCoordinateException {
+    private void setFirstPlayer(Socket s) throws IOException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, ClassNotFoundException, GameException, BadCoordinateException {
 
 
         if(game == null) {
-            game = new Game(4, 2); // TODO na razie na sztywno
+            game = new Game(3, 2); // TODO na razie na sztywno
             game.players[0] = PlayersFactory.getInstance().createHuman(game, s, game.getPColor(game.players.length,0));
 
         } else {
@@ -78,7 +78,7 @@ public class Server {
 
     }
 
-    public void setAnotherPlayers(int i, Socket s) throws IOException, GameException, BadCoordinateException {
+    private void setAnotherPlayers(int i, Socket s) throws IOException, GameException, BadCoordinateException {
 
 //TODO przekazuj info jak w 1 playerze
         if(game == null) {
