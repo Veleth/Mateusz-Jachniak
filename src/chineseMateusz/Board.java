@@ -6,11 +6,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Board extends JPanel implements Serializable{
+public class Board extends JPanel implements Serializable {
     private static final long serialVersionUID = -5139437953272450049L;
 
     public enum Fields {
-		NOTUSED, EMPTY, BUSY;
+		NOTUSED, EMPTY, BUSY
 	}
 	
 	Fields board[][];
@@ -76,27 +76,42 @@ public class Board extends JPanel implements Serializable{
         int scaleX = 700 / width;
         boolean alreadyDrawn;
 
-        for(int y=0; y<height; ++y)
-            for(int x=0; x<width; ++x)
-            {
-                switch(board[x][y])
-                {
+        for(int y=0; y<height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                switch (board[x][y]) {
                     case EMPTY:
                         g2d.setColor(Color.GRAY);
-                        g2d.fillOval(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
+                        g2d.fillOval(30 + x * scaleX, 30 + y * scaleY, scaleX, scaleY);
                         break;
                     case BUSY:
                         alreadyDrawn = false;
-                        for(Map.Entry<Pawn[], Pawn.PlayerColor> map : pawns.entrySet()) {
-                            for(Pawn p : map.getKey()) {
-                                if(p.getX() == x && p.getY() == y) {
-                                    g2d.setColor(colors.get(map.getValue()));
-                                    g2d.fillOval(30+x*scaleX, 30+y*scaleY, scaleX, scaleY);
+                        for (Map.Entry<Pawn[], Pawn.PlayerColor> map : pawns.entrySet()) {
+
+                            g2d.setColor(colors.get(map.getValue()));
+
+                            g2d.setFont(new Font("Arial",Font.BOLD, 16));
+                            if(map.getValue() == Pawn.PlayerColor.BLUE) {
+                                g2d.drawString("BLUE DESTINATION", 300, 525);
+                            } else if(map.getValue() == Pawn.PlayerColor.GREEN) {
+                                g2d.drawString("GREEN DESTINATION", 540, 130);
+                            } else if(map.getValue() == Pawn.PlayerColor.ORANGE) {
+                                g2d.drawString("ORANGE DESTINATION", 30, 130);
+                            } else if(map.getValue() == Pawn.PlayerColor.PINK) {
+                                g2d.drawString("PINK DESTINATION", 540, 415);
+                            } else if(map.getValue() == Pawn.PlayerColor.RED) {
+                                g2d.drawString("RED DESTINATION", 300, 25);
+                            } else if(map.getValue() == Pawn.PlayerColor.YELLOW) {
+                                g2d.drawString("YELLOW DESTINATION", 30, 415);
+                            }
+
+                            for (Pawn p : map.getKey()) {
+                                if (p.getX() == x && p.getY() == y) {
+                                    g2d.fillOval(30 + x * scaleX, 30 + y * scaleY, scaleX, scaleY);
                                     alreadyDrawn = true;
                                     break;
                                 }
                             }
-                            if(alreadyDrawn) {
+                            if (alreadyDrawn) {
                                 break;
                             }
                         }
@@ -104,5 +119,6 @@ public class Board extends JPanel implements Serializable{
                 }
 
             }
+        }
     }
 }
