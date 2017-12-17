@@ -14,7 +14,8 @@ public class Board extends JPanel implements Serializable {
 	}
 	
 	private Fields board[][];
-
+    private Pawn.PlayerColor currentColor;
+    private Pawn.PlayerColor playerColor;
     HashMap<Pawn.PlayerColor, Color> colors;
 	HashMap<Pawn[], Pawn.PlayerColor> pawns;
 
@@ -70,6 +71,14 @@ public class Board extends JPanel implements Serializable {
     {
         Graphics2D g2d = (Graphics2D) g;
 
+        g2d.setFont(new Font("Arial",Font.BOLD, 16));
+        g2d.setColor(colors.get(currentColor));
+        g2d.drawString("Color to turn",10,20);
+        g2d.fillRect(10,35,20,20);
+        g2d.setColor(colors.get(playerColor));
+        g2d.drawString("Your color",600,20);
+        g2d.fillRect(600,35,20,20);
+
         int height = board[0].length;
         int width = board.length;
         int scaleY = 476 / height;
@@ -89,7 +98,7 @@ public class Board extends JPanel implements Serializable {
 
                             g2d.setColor(colors.get(map.getValue()));
 
-                            g2d.setFont(new Font("Arial",Font.BOLD, 16));
+
                             if(map.getValue() == Pawn.PlayerColor.BLUE) {
                                 g2d.drawString("BLUE DESTINATION", 300, 525);
                             } else if(map.getValue() == Pawn.PlayerColor.GREEN) {
@@ -121,7 +130,16 @@ public class Board extends JPanel implements Serializable {
             }
         }
     }
+
     public Fields[][] getBoard(){
     	return this.board;
+    }
+
+    public void setCurrentColor(Pawn.PlayerColor currentColor) {
+        this.currentColor = currentColor;
+    }
+
+    public void setPlayerColor(Pawn.PlayerColor playerColor) {
+        this.playerColor = playerColor;
     }
 }

@@ -61,7 +61,7 @@ public class PlayersFactory {
             pawnsPositions = downPositions;
         }
 
-        p.pawns = new Pawn[10];
+        p.pawns = new Pawn[pawnsPositions.length];
 
         for(int i = 0; i < pawnsPositions.length; ++i) {
             p.pawns[i] = new Pawn(p.getPlayerColor(), pawnsPositions[i][0], pawnsPositions[i][1]);

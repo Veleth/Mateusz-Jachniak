@@ -1,28 +1,21 @@
 package chineseMateusz;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Observer;
-
-import javax.swing.JFrame;
-
 import chineseMateusz.Board.Fields;
 import chineseMateusz.Pawn.PlayerColor;
-import chineseMateuszExceptions.BadCoordinateException;
 import chineseMateuszExceptions.InvalidNumberOfHumansException;
 import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
-public class Game implements Serializable {
+import java.io.IOException;
+import java.util.ArrayList;
 
-    private static final long serialVersionUID = 5063734558649943931L;
+public class Game {
+
     protected Player[] players;
     int humansAmount;
     protected Board board;
-    int availablePlace;
-    int[] currentMove;
+    private int availablePlace;
+    int lastPlace;
+    private int[] currentMove;
 
     public Game(int x, int humans) throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
 		if (humans < 1 || humans > x) {
@@ -44,6 +37,7 @@ public class Game implements Serializable {
         players = new Player[x];
         humansAmount = humans;
         availablePlace = 1;
+        lastPlace = x;
 	}
 
     public void playGame() throws InterruptedException, IOException, ClassNotFoundException {
@@ -53,29 +47,35 @@ public class Game implements Serializable {
                 i = i % players.length;
 
                 if(!(players[i].hasFinished())) {
+                    for(Player p : players) {
+                        if(p instanceof Human) {
+                            (( Human) p).sendMoverToClient(players[i].getPlayerColor());
+                        }
+                    }
 
                     ArrayList<int[]> moves = checkPossibleMoves(players[i]);
                     System.out.println(players[i].getPlayerColor());
                     if(moves.isEmpty()) {
-                        //TODO informacja, że nie ma dostepnego ruchu
                         continue;
                     }
 
                     if(players[i].isHuman()) {
-                        for(int[] m : moves) {
-                            System.out.println("Ruch - " + m[0] + " " + m[1] + "->" + m[2] + " " + m[3]);
-                        }
-                        System.out.println("\n");
                         Human currPlayer = (Human) players[i];
                         boolean moved = false;
 
                         while(!moved) {
                             currPlayer.setisMoving(true);
                             int[] move = currPlayer.move();
+
+                            if(move[0] == -100 && move[1] == -100 && move[2] == -100 && move[3] == -100) {
+                                //TODO aborted game
+                                abortedGame();
+                                break;
+                            }
+
                             boolean goodMove = false;
                             for(int[] m : moves) {
                                  if(m[0] == move[0] && m[1] == move[1] && m[2] == move[2] && m[3] == move[3]) {
-                                     System.out.println("RUSZAM");
                                      goodMove = true;
                                      currentMove = move;
                                      break;
@@ -101,7 +101,6 @@ public class Game implements Serializable {
                         currentMove = currBot.move(checkPossibleMoves(players[i]));
 
                         if(currentMove == null) {
-                            //spasowal
                             continue;
                         }
 
@@ -148,7 +147,7 @@ public class Game implements Serializable {
 		return true;
 	}
 
-	ArrayList<int[]> checkPossibleMoves(Player p) {
+	private ArrayList<int[]> checkPossibleMoves(Player p) {
         ArrayList<int[]> movesPossible = new ArrayList<>();
 
 	    for(int i = 0; i < p.pawns.length; ++i) {
@@ -301,6 +300,18 @@ public class Game implements Serializable {
                 board.getBoard()[currentMove[2]][currentMove[3]] = Fields.BUSY;
                 board.updateBoard();
             }
+        }
+    }
+
+    public void abortedGame() {
+        try {
+            for (Player p : players) {
+                if (p instanceof Human) {
+                    ((Human) p).sendTextToClient("ABORTED GAME");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

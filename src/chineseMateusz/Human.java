@@ -5,12 +5,9 @@ import chineseMateusz.Pawn.PlayerColor;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.Socket;
 
-public class Human extends Player implements Runnable, Serializable {
-
-    private static final long serialVersionUID = -8499720961482595815L;
+public class Human extends Player implements Runnable {
 
     private Game game;
     private Socket socket;
@@ -51,13 +48,17 @@ public class Human extends Player implements Runnable, Serializable {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            game.abortedGame();
         }
     }
 
     public int[] move() {
 
         while (currentMove == null) {
+            if(hasFinished()) {
+                int[] temp = {-100,-100,-100,-100 };
+                currentMove = temp;
+            }
         }
 
         return currentMove;
@@ -68,8 +69,15 @@ public class Human extends Player implements Runnable, Serializable {
     }
 
     public void sendBoardToClient(Board board) throws IOException {
-        out.writeObject(board);
+        Board b = board;
+        b.setPlayerColor(getPlayerColor());
+        out.writeObject(b);
     }
+
+    public void sendTextToClient(String string) throws IOException {
+        out.writeObject(string);
+    }
+
 
     private boolean isPawn(int x, int y) {
 
@@ -89,4 +97,7 @@ public class Human extends Player implements Runnable, Serializable {
         this.isMoving = isMoving;
     }
 
+    public void sendMoverToClient(PlayerColor playerColor) throws IOException {
+        out.writeObject(playerColor);
+    }
 }

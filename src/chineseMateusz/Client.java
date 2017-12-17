@@ -109,8 +109,17 @@ public class Client extends JFrame {
                 } else {
                      throw new IOException();
                 }
-            } else if (true) { //TODO get arguemnts for ending game, move another player
+            } else if (o instanceof String) { //fixme implement ending game normal and by abort
+                String s = (String) o;
 
+                if(s.startsWith("ABORTED GAME")) {
+                    break;
+                } else if(s.startsWith("GAME END")) {
+
+                }
+            } else if(o instanceof Pawn.PlayerColor) {
+                board.setCurrentColor((Pawn.PlayerColor) o);
+                board.repaint();
             }
         }
     }
