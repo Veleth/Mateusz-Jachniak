@@ -6,6 +6,8 @@ import chineseMateuszExceptions.InvalidNumberOfHumansException;
 import chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -20,8 +22,7 @@ public class Server {
         System.out.println("Server works!");
     }
 
-    public void listenSocket() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, InterruptedException, GameException, BadCoordinateException {
-
+    public void gameHandling() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, InterruptedException, GameException, BadCoordinateException {
 
             Socket s = server.accept();
             setFirstPlayer(s);
@@ -37,6 +38,7 @@ public class Server {
 
             HashMap<Pawn[], Pawn.PlayerColor> boardMap = new HashMap<>();
             initBoardMap(boardMap);
+
             game.board = new Board(boardMap);
             game.board.updateBoard();
 
@@ -67,10 +69,15 @@ public class Server {
 
     private void setFirstPlayer(Socket s) throws IOException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, ClassNotFoundException, GameException, BadCoordinateException {
 
+        ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+
+        out.writeObject(true);
+        int[] gameDetails = (int[]) in.readObject();
 
         if(game == null) {
-            game = new Game(6, 2); // TODO na razie na sztywno
-            game.players[0] = PlayersFactory.getInstance().createHuman(game, s, game.getPColor(game.players.length,0));
+            game = new Game(gameDetails[0], gameDetails[1]);
+            game.players[0] = PlayersFactory.getInstance().createHuman(game, in, out, game.getPColor(game.players.length,0));
 
         } else {
             throw new GameException();
@@ -80,12 +87,16 @@ public class Server {
 
     private void setAnotherPlayers(int i, Socket s) throws IOException, GameException, BadCoordinateException {
 
-//TODO przekazuj info jak w 1 playerze
+        ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+
+        out.writeObject(false);
+
         if(game == null) {
             throw new GameException();
         }
 
-        game.players[i] = PlayersFactory.getInstance().createHuman(game, s, game.getPColor(game.players.length, i));
+        game.players[i] = PlayersFactory.getInstance().createHuman(game, in, out, game.getPColor(game.players.length, i));
     }
 }
 

@@ -29,7 +29,7 @@ public class Client extends JFrame {
         setGUI();
     }
 
-    public void setGUI() {
+    private void setGUI() {
 	    add(board);
 	    setDefaultCloseOperation(EXIT_ON_CLOSE);
 	    setLocation(100,100);
@@ -57,14 +57,14 @@ public class Client extends JFrame {
 
     private void initialize() throws IOException, ClassNotFoundException {
         try {
-            /*int readValue = (int) in.readObject(); //1st message received, if -1 new game created, no - added to created prev gm
-            if(readValue == -1) {
+            boolean readValue = (boolean) in.readObject(); //1st message received, if -1 new game created, no - added to created prev gm
+            if(readValue) {
                 int players = amountOfPlayers();
                 int humans = amountOfHumans(players);
-                int amounts[] = {players, humans}; //TODO ogarnij to wysylanie ilosci graczy
+                int amounts[] = {players, humans};
                 out.writeObject(amounts);
             }
-*/
+
 
             Object temp = in.readObject();
 

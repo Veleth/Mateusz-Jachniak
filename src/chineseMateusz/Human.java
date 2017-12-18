@@ -10,19 +10,17 @@ import java.net.Socket;
 public class Human extends Player implements Runnable {
 
     private Game game;
-    private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private boolean isMoving;
     private boolean isConnected;
     private volatile int[] currentMove;
 
-    public Human(Game game, Socket socket, PlayerColor playerColor) throws IOException {
+    public Human(Game game, ObjectInputStream in, ObjectOutputStream out, PlayerColor playerColor) throws IOException {
 		super(playerColor);
 		this.game = game;
-        this.socket = socket;
-        in = new ObjectInputStream(socket.getInputStream());
-		out = new ObjectOutputStream(socket.getOutputStream());
+        this.in = in;
+        this.out = out;
 		isMoving = false;
 		isConnected = true;
 		setHuman(true);

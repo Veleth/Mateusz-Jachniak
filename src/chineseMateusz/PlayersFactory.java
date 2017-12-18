@@ -3,6 +3,8 @@ package chineseMateusz;
 import chineseMateuszExceptions.BadCoordinateException;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -13,8 +15,8 @@ public class PlayersFactory {
     private PlayersFactory() {
     }
 
-    public Human createHuman(Game g, Socket s, Pawn.PlayerColor playerColor) throws IOException, BadCoordinateException {
-        Human human = new Human(g, s, playerColor);
+    public Human createHuman(Game g, ObjectInputStream in, ObjectOutputStream out, Pawn.PlayerColor playerColor) throws IOException, BadCoordinateException {
+        Human human = new Human(g, in, out, playerColor);
         setPlayerStartEnd(human);
         return human;
     }
