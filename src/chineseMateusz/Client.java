@@ -80,7 +80,7 @@ public class Client extends JFrame {
         }
     }
 
-    public void play() throws IOException, ClassNotFoundException {
+    public void play() throws IOException, ClassNotFoundException, InterruptedException {
 
         while(true) {
 
@@ -109,13 +109,17 @@ public class Client extends JFrame {
                 } else {
                      throw new IOException();
                 }
-            } else if (o instanceof String) { //fixme implement ending game normal and by abort
+            } else if (o instanceof String) {
                 String s = (String) o;
 
                 if(s.startsWith("ABORTED GAME")) {
-                    break;
+                    JOptionPane.showMessageDialog(null, "Game has been aborted by one of the humans..\nLet's find him and kill him!", "Game result", JOptionPane.ERROR_MESSAGE, null);
+                    exit(0);
                 } else if(s.startsWith("GAME END")) {
-
+                    JOptionPane.showMessageDialog(null, s, "Game result", JOptionPane.PLAIN_MESSAGE, null);
+                    exit(0);
+                } else if(s.startsWith("MOVE NOT POSSIBLE")) {
+                    JOptionPane.showMessageDialog(null, s, "Game info", JOptionPane.INFORMATION_MESSAGE, null);
                 }
             } else if(o instanceof Pawn.PlayerColor) {
                 board.setCurrentColor((Pawn.PlayerColor) o);

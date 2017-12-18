@@ -16,6 +16,7 @@ public class Game {
     private int availablePlace;
     int lastPlace;
     private int[] currentMove;
+    private boolean aborted;
 
     public Game(int x, int humans) throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
 		if (humans < 1 || humans > x) {
@@ -38,6 +39,7 @@ public class Game {
         humansAmount = humans;
         availablePlace = 1;
         lastPlace = x;
+        aborted = false;
 	}
 
     public void playGame() throws InterruptedException, IOException, ClassNotFoundException {
@@ -54,8 +56,9 @@ public class Game {
                     }
 
                     ArrayList<int[]> moves = checkPossibleMoves(players[i]);
-                    System.out.println(players[i].getPlayerColor());
+
                     if(moves.isEmpty()) {
+                        ((Human) players[i]).sendTextToClient("MOVE NOT POSSIBLE\nYou can't move now!");
                         continue;
                     }
 
@@ -68,8 +71,7 @@ public class Game {
                             int[] move = currPlayer.move();
 
                             if(move[0] == -100 && move[1] == -100 && move[2] == -100 && move[3] == -100) {
-                                //TODO aborted game
-                                abortedGame();
+                                aborted = true;
                                 break;
                             }
 
@@ -96,6 +98,11 @@ public class Game {
                             moved = true;
                             currPlayer.setisMoving(false);
                         }
+
+                        if(aborted) {
+                            break;
+                        }
+
                     } else {
                         Bot currBot = (Bot) players[i];
                         currentMove = currBot.move(checkPossibleMoves(players[i]));
@@ -120,16 +127,24 @@ public class Game {
                     }
                 }
             }
-        } while(!gameFinished());
+        } while(!gameFinished() && !aborted);
+
+        if(!aborted) {
+            for (Player p : players) {
+                if (p instanceof Human) {
+                    ((Human) p).sendTextToClient(gameStats());
+                }
+            }
+        }
     }
 
     public String gameStats() {
         String stats = "";
-        stats = stats.concat("Miejsca -\n");
+        stats = stats.concat("GAME END -\n");
         for(int i = 1; i <= players.length; ++i) {
             for(int j = 0; j < players.length; ++j) {
                 if(players[j].getPlace() == i) {
-                    stats = stats.concat("Player " + j + " - msc " + i + "\n");
+                    stats = stats.concat("Player " + j + " - pos " + i + "\n");
                 }
             }
         }

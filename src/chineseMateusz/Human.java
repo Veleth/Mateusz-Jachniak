@@ -14,6 +14,7 @@ public class Human extends Player implements Runnable {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private boolean isMoving;
+    private boolean isConnected;
     private volatile int[] currentMove;
 
     public Human(Game game, Socket socket, PlayerColor playerColor) throws IOException {
@@ -23,6 +24,7 @@ public class Human extends Player implements Runnable {
         in = new ObjectInputStream(socket.getInputStream());
 		out = new ObjectOutputStream(socket.getOutputStream());
 		isMoving = false;
+		isConnected = true;
 		setHuman(true);
     }
 
@@ -48,6 +50,7 @@ public class Human extends Player implements Runnable {
             }
         }
         catch (Exception e) {
+            isConnected = false;
             game.abortedGame();
         }
     }
@@ -55,7 +58,7 @@ public class Human extends Player implements Runnable {
     public int[] move() {
 
         while (currentMove == null) {
-            if(hasFinished()) {
+            if(!isConnected) {
                 int[] temp = {-100,-100,-100,-100 };
                 currentMove = temp;
             }
@@ -65,19 +68,30 @@ public class Human extends Player implements Runnable {
     }
 
     public void sendMoveToClient(int[] move) throws IOException {
-        out.writeObject(move);
+        if(isConnected) {
+            out.writeObject(move);
+        }
     }
 
     public void sendBoardToClient(Board board) throws IOException {
-        Board b = board;
-        b.setPlayerColor(getPlayerColor());
-        out.writeObject(b);
+        if(isConnected) {
+            Board b = board;
+            b.setPlayerColor(getPlayerColor());
+            out.writeObject(b);
+        }
     }
 
     public void sendTextToClient(String string) throws IOException {
-        out.writeObject(string);
+        if(isConnected) {
+            out.writeObject(string);
+        }
     }
 
+    public void sendMoverToClient(PlayerColor playerColor) throws IOException {
+        if(isConnected) {
+            out.writeObject(playerColor);
+        }
+    }
 
     private boolean isPawn(int x, int y) {
 
@@ -97,7 +111,4 @@ public class Human extends Player implements Runnable {
         this.isMoving = isMoving;
     }
 
-    public void sendMoverToClient(PlayerColor playerColor) throws IOException {
-        out.writeObject(playerColor);
-    }
 }

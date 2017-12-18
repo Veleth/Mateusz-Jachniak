@@ -22,7 +22,7 @@ public class Server {
 
     public void listenSocket() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, InterruptedException, GameException, BadCoordinateException {
 
-        while(true) {
+
             Socket s = server.accept();
             setFirstPlayer(s);
 
@@ -50,7 +50,7 @@ public class Server {
             }
 
             game.playGame();
-        }
+
     }
 
     private void initBoardMap(HashMap<Pawn[], Pawn.PlayerColor> boardMap) {
@@ -69,7 +69,7 @@ public class Server {
 
 
         if(game == null) {
-            game = new Game(3, 2); // TODO na razie na sztywno
+            game = new Game(6, 2); // TODO na razie na sztywno
             game.players[0] = PlayersFactory.getInstance().createHuman(game, s, game.getPColor(game.players.length,0));
 
         } else {
