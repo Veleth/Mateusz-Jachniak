@@ -32,8 +32,8 @@ public class Server {
                 setAnotherPlayers(i, s1);
             }
 
-            for(int i = game.humansAmount; i < game.players.length; ++i) {
-                game.players[i] = PlayersFactory.getInstance().createBot(game.getPColor(game.players.length, i));
+            for(int i = game.humansAmount; i < game.getNoOfPlayers(); ++i) {
+                game.setPlayer(PlayersFactory.getInstance().createBot(game.getPColor(game.getNoOfPlayers(), i)), i);
             }
 
             HashMap<Pawn[], Pawn.PlayerColor> boardMap = new HashMap<>();
@@ -43,11 +43,11 @@ public class Server {
             game.board.updateBoard();
 
             for(int i = 0; i < game.humansAmount; ++i) {
-                ((Human) game.players[i]).sendBoardToClient(game.getBoard());
+                ((Human) game.getPlayers()[i]).sendBoardToClient(game.getBoard());
             }
 
             for(int i = 0; i < game.humansAmount; ++i) {
-                Thread t = new Thread((Human) game.players[i]);
+                Thread t = new Thread((Human) game.getPlayers()[i]);
                 t.start();
             }
 
@@ -57,7 +57,7 @@ public class Server {
 
     private void initBoardMap(HashMap<Pawn[], Pawn.PlayerColor> boardMap) {
 
-        for(Player p : game.players) {
+        for(Player p : game.getPlayers()) {
              boardMap.put(p.pawns, p.getPlayerColor());
         }
     }
@@ -77,7 +77,7 @@ public class Server {
 
         if(game == null) {
             game = new Game(gameDetails[0], gameDetails[1]);
-            game.players[0] = PlayersFactory.getInstance().createHuman(game, in, out, game.getPColor(game.players.length,0));
+            game.setPlayer(PlayersFactory.getInstance().createHuman(game, in, out, game.getPColor(game.getNoOfPlayers(),0)), 0);
 
         } else {
             throw new GameException();
@@ -96,7 +96,7 @@ public class Server {
             throw new GameException();
         }
 
-        game.players[i] = PlayersFactory.getInstance().createHuman(game, in, out, game.getPColor(game.players.length, i));
+        game.setPlayer(PlayersFactory.getInstance().createHuman(game, in, out, game.getPColor(game.getNoOfPlayers(), i)), i);
     }
 }
 

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Game {
 
-    protected Player[] players;
+    private Player[] players;
     int humansAmount;
     protected Board board;
     private int availablePlace;
@@ -129,7 +129,6 @@ public class Game {
                     }
 
                     if (checkFinished(players[i])) {
-                        System.out.println("HIHI");
                         players[i].setPlace(availablePlace);
                         availablePlace++;
                         players[i].setFinished(true);
@@ -137,10 +136,8 @@ public class Game {
                 }
             }
         } while(!gameFinished() && !aborted);
-        System.out.println("XD");
         if(!aborted) {
-            System.out.println("XD2@");
-            for (Player p : players) {
+        	for (Player p : players) {
                 if (p instanceof Human) {
                     ((Human) p).sendTextToClient(gameStats());
                 }
@@ -304,9 +301,21 @@ public class Game {
         }
         return colors[j];
     }
+    
+    public int getNoOfPlayers (){
+    	return players.length;
+    }
+    
+    public Player[] getPlayers(){
+    	return players;
+    }
 
     public Player getPlayer(int x){
         return players[x];
+    }
+    
+    public void setPlayer (Player p, int x){
+    	players[x] = p;
     }
 
     public Board getBoard() {
