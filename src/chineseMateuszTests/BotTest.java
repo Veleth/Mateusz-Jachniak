@@ -58,4 +58,11 @@ public class BotTest {
 		assertNull(test2);
 		
 	}
+	
+	@Test
+	public void bonusTest() throws BadCoordinateException{
+		Bot winner = PlayersFactory.getInstance().createBot(PlayerColor.BLUE);
+		winner.setPlace(1);
+		assertEquals(winner.getPlace(), 1);
+	}
 }

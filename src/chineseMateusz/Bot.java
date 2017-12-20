@@ -16,7 +16,11 @@ public class Bot extends Player {
 	}
 
     public int[] move(ArrayList<int[]> possibleMoves){
-        Random rand = new Random();
+        if (possibleMoves.isEmpty()) {
+            return null;
+        }
+    	
+    	Random rand = new Random();
 
         ArrayList<int[]> bestMoves = new ArrayList<>();
 
@@ -31,9 +35,6 @@ public class Bot extends Player {
                 bestMoves.clear();
                 bestMoves.add(move);
             }
-        }
-        if (bestMoves.isEmpty()) {
-            return null;
         }
 
         int r = rand.nextInt(bestMoves.size());

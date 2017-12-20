@@ -169,7 +169,7 @@ public class Game {
 		}
 		return true;
 	}
-
+//TODO: Multiskok - logika
 	private ArrayList<int[]> checkPossibleMoves(Player p) {
         ArrayList<int[]> movesPossible = new ArrayList<>();
 

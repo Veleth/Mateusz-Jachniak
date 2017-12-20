@@ -87,7 +87,7 @@ public class Client extends JFrame {
             exit(-1);
         }
     }
-
+//TODO: Wyró¿nienie zaznaczonych pól
     public void play() throws IOException, ClassNotFoundException, InterruptedException {
 
         while(true) {
