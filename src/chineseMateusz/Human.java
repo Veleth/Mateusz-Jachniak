@@ -37,12 +37,13 @@ public class Human extends Player implements Runnable {
                     if (o.getClass().isArray()) {
                         int[] tempArray = (int[]) o;
 
-                        if(!(isPawn(tempArray[0], tempArray[1]))) {
+                        if(tempArray[0] == -200 && tempArray[1] == -200 && tempArray[2] == -200 && tempArray[3] == -200) {}
+                        else if(!(isPawn(tempArray[0], tempArray[1]))) {
                             continue;
                         }
 
-                        currentMove = tempArray;
                         isMoving = false;
+                        currentMove = tempArray;
                     }
                 }
             }

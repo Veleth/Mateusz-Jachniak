@@ -1,6 +1,9 @@
 package chineseMateusz;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -16,7 +19,7 @@ public class Client extends JFrame {
 
     private int x1, y1, x2, y2;
 	private Board board;
-
+    private Button skipMove;
 	private Socket socket = null;
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
@@ -30,10 +33,15 @@ public class Client extends JFrame {
     }
 
     private void setGUI() {
-	    add(board);
+	    add(board, BorderLayout.CENTER);
+
+        skipMove = new Button("Skip move");
+        skipMove.addActionListener(new MyActionListener());
+	    add(skipMove, BorderLayout.SOUTH);
+
 	    setDefaultCloseOperation(EXIT_ON_CLOSE);
 	    setLocation(100,100);
-	    setSize(780,600);
+	    setSize(780,620);
         setResizable(false);
         setVisible(true);
     }
@@ -116,7 +124,7 @@ public class Client extends JFrame {
                     JOptionPane.showMessageDialog(null, "Game has been aborted by one of the humans..\nLet's find him and kill him!", "Game result", JOptionPane.ERROR_MESSAGE, null);
                     exit(0);
                 } else if(s.startsWith("GAME END")) {
-                    JOptionPane.showMessageDialog(null, s, "Game result", JOptionPane.PLAIN_MESSAGE, null);
+                    System.out.println("XDD");JOptionPane.showMessageDialog(null, s, "Game result", JOptionPane.PLAIN_MESSAGE, null);
                     exit(0);
                 } else if(s.startsWith("MOVE NOT POSSIBLE")) {
                     JOptionPane.showMessageDialog(null, s, "Game info", JOptionPane.INFORMATION_MESSAGE, null);
@@ -169,13 +177,12 @@ public class Client extends JFrame {
                 if (x1 == -1 && y1 == -1) {
                     x1 = (e.getX() - 37) / scaleX;
                     y1 = (e.getY() - 32 - scaleY) / scaleY;
-
                 } else {
                     try {
                         x2 = (e.getX() - 37) / scaleX;
                         y2 = (e.getY() - 32 - scaleY) / scaleY;
-
                         int[] coordinates = {x1, y1, x2, y2};
+
                         out.writeObject(coordinates);
 
                         x1 = x2 = y1 = y2 = -1;
@@ -186,4 +193,14 @@ public class Client extends JFrame {
             }
         }
 
+    private class MyActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                out.writeObject(new int[]{-200,-200,-200,-200});
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
 }

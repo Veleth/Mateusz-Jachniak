@@ -24,7 +24,7 @@ public class PlayersFactory {
     public Bot createBot(Pawn.PlayerColor playerColor) throws BadCoordinateException {
         Bot bot = new Bot(playerColor);
         setPlayerStartEnd(bot);
-		setTarget(bot);
+        bot.setTarget();
         return bot;
     }
 
@@ -92,47 +92,31 @@ public class PlayersFactory {
 
     private void setPlayerStartEnd (Player p) throws BadCoordinateException {
 
-            switch(p.getPlayerColor()) {
-                case BLUE:
-                    placePawns(p, true, 12, 0);
-                    setEndCoordinates(p, false, 12, 16);
-                    break;
-                case RED:
-                    placePawns(p, false, 12, 16);
-                    setEndCoordinates(p, true, 12, 0);
-                    break;
-                case GREEN:
-                    placePawns(p, true, 3, 9);
-                    setEndCoordinates(p, false, 21, 7);
-                    break;
-                case YELLOW:
-                    placePawns(p, false, 21, 7);
-                    setEndCoordinates(p, true, 3, 9);
-                    break;
-                case ORANGE:
-                    placePawns(p, true, 21, 9);
-                    setEndCoordinates(p, false, 3, 7);
-                    break;
-                case PINK:
-                    placePawns(p, false, 3, 7);
-                    setEndCoordinates(p, true, 21, 9);
+        switch(p.getPlayerColor()) {
+            case BLUE:
+                placePawns(p, true, 12, 0);
+                setEndCoordinates(p, false, 12, 16);
+                break;
+            case RED:
+                placePawns(p, false, 12, 16);
+                setEndCoordinates(p, true, 12, 0);
+                break;
+            case GREEN:
+                placePawns(p, true, 3, 9);
+                setEndCoordinates(p, false, 21, 7);
+                break;
+            case YELLOW:
+                placePawns(p, false, 21, 7);
+                setEndCoordinates(p, true, 3, 9);
+                break;
+            case ORANGE:
+                placePawns(p, true, 21, 9);
+                setEndCoordinates(p, false, 3, 7);
+                break;
+            case PINK:
+                placePawns(p, false, 3, 7);
+                setEndCoordinates(p, true, 21, 9);
         }
     }
 
-    private void setTarget(Bot bot) {
-
-        double targetDist = 0;
-        //find the farthest end coord
-        int[] pawnCoords = {bot.pawns[0].getX(), bot.pawns[0].getY()};
-        for (int[] endCoord: bot.getEndCoordinates()){
-            if(findTarget(pawnCoords, endCoord) > targetDist){
-                targetDist = findTarget(pawnCoords, endCoord);
-                bot.target = endCoord;
-            }
-        }
-    }
-
-	private double findTarget(int[] pawn, int[] endC) {
-		return Math.sqrt(Math.pow((pawn[0]-endC[0]), 2)+Math.pow((pawn[1]-endC[1]), 2));
-    }
 }
