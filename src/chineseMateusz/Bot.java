@@ -18,7 +18,7 @@ public class Bot extends Player implements Serializable{
 
 	public int[] move(ArrayList<int[]> possibleMoves){
 		Random rand = new Random();
-        double maxdist = 0;
+        double maxdist = -10;
         ArrayList<int[]> bestMoves = new ArrayList<>();
         for(int[] move: possibleMoves){
         	if ((findDist(move, target) == maxdist)){
@@ -30,7 +30,7 @@ public class Bot extends Player implements Serializable{
         		bestMoves.add(move);
         	}
         }
-        if (bestMoves.isEmpty() || !(maxdist >= 0)){
+        if (bestMoves.isEmpty()){
         	return null;
         }
         else {
@@ -40,7 +40,19 @@ public class Bot extends Player implements Serializable{
 	}
 	
 	private double findDist(int[] startC, int[] endC){
-		return (Math.sqrt(Math.pow((startC[0]-endC[0]), 2)+Math.pow((startC[1]-endC[1]), 2)) - Math.sqrt(Math.pow((startC[2]-endC[0]), 2)+Math.pow((startC[3]-endC[1]), 2)));
+		int dx = Math.abs(startC[0]-endC[0]);
+		int dy = Math.abs(startC[1]-endC[1]);
+		int dxt = Math.abs(startC[2]-endC[0]);
+		int dyt = Math.abs(startC[3]-endC[1]);
+		if (dx > dy){
+			dx *= 2;
+			dxt *= 2;
+		}
+		else{
+			dy *= 2;
+			dyt *= 2;
+		}
+		return (Math.sqrt(Math.pow((dx), 2)+Math.pow(dy, 2)) - Math.sqrt(Math.pow((dxt), 2)+Math.pow(dyt, 2)));
 	}
 	
 	public int[] getTarget(){
