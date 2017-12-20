@@ -54,8 +54,6 @@ public class BotTest {
 		assertEquals(temp2[0], test1[0]);
 		
 		moves.clear();
-		int[] temp3 ={10, 1, 10, 2};
-		moves.add(temp3);
 		int[] test2 = bot.move(moves);
 		assertNull(test2);
 		

@@ -124,7 +124,7 @@ public class Client extends JFrame {
                     JOptionPane.showMessageDialog(null, "Game has been aborted by one of the humans..\nLet's find him and kill him!", "Game result", JOptionPane.ERROR_MESSAGE, null);
                     exit(0);
                 } else if(s.startsWith("GAME END")) {
-                    System.out.println("XDD");JOptionPane.showMessageDialog(null, s, "Game result", JOptionPane.PLAIN_MESSAGE, null);
+                    JOptionPane.showMessageDialog(null, s, "Game result", JOptionPane.PLAIN_MESSAGE, null);
                     exit(0);
                 } else if(s.startsWith("MOVE NOT POSSIBLE")) {
                     JOptionPane.showMessageDialog(null, s, "Game info", JOptionPane.INFORMATION_MESSAGE, null);
