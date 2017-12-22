@@ -12,7 +12,8 @@ public class Board extends JPanel implements Serializable {
     public enum Fields {
 		NOTUSED, EMPTY, BUSY
 	}
-	
+
+	int[] paintPoint;
 	private Fields board[][];
     private Pawn.PlayerColor currentColor;
     private Pawn.PlayerColor playerColor;
@@ -67,9 +68,16 @@ public class Board extends JPanel implements Serializable {
         }
     }
 
+    public void setPaintPoint(int x, int y) {
+	    paintPoint = new int[]{x,y};
+    }
+
     public void paintComponent(Graphics g)
     {
         Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0,0, this.getWidth(), this.getHeight());
 
         g2d.setFont(new Font("Arial",Font.BOLD, 16));
         g2d.setColor(colors.get(currentColor));
@@ -128,6 +136,12 @@ public class Board extends JPanel implements Serializable {
                 }
 
             }
+        }
+
+        if(paintPoint != null) {
+            g2d.setColor(Color.BLACK);
+            g2d.fillOval(paintPoint[0], paintPoint[1], 10, 10);
+            paintPoint = null;
         }
     }
 

@@ -39,7 +39,6 @@ public class Bot extends Player {
 
         int r = rand.nextInt(bestMoves.size());
         return bestMoves.get(r);
-//TODO ogarnac idiotyzm bota
     }
 
     public void setTarget() {
@@ -59,7 +58,7 @@ public class Bot extends Player {
         return Math.sqrt(Math.pow((pawn[0]-endC[0]), 2)+Math.pow((pawn[1]-endC[1]), 2));
     }
 
-    private double findDist(int[] startC, int[] endC){ //todo to improve
+    private double findDist(int[] startC, int[] endC){
         int dx = Math.abs(startC[0]-endC[0]);
         int dy = Math.abs(startC[1]-endC[1]);
         int dxt = Math.abs(startC[2]-endC[0]);

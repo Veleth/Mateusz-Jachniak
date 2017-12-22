@@ -24,34 +24,37 @@ public class Server {
 
     public void gameHandling() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, InterruptedException, GameException, BadCoordinateException {
 
-            Socket s = server.accept();
-            setFirstPlayer(s);
+            while(true) {
+                Socket s = server.accept();
+                setFirstPlayer(s);
 
-            for(int i = 1; i < game.humansAmount; ++i) {
-                Socket s1 = server.accept();
-                setAnotherPlayers(i, s1);
+                for (int i = 1; i < game.humansAmount; ++i) {
+                    Socket s1 = server.accept();
+                    setAnotherPlayers(i, s1);
+                }
+
+                for (int i = game.humansAmount; i < game.getNoOfPlayers(); ++i) {
+                    game.setPlayer(PlayersFactory.getInstance().createBot(game.getPColor(game.getNoOfPlayers(), i)), i);
+                }
+
+                HashMap<Pawn[], Pawn.PlayerColor> boardMap = new HashMap<>();
+                initBoardMap(boardMap);
+
+                game.board = new Board(boardMap);
+                game.board.updateBoard();
+
+                for (int i = 0; i < game.humansAmount; ++i) {
+                    ((Human) game.getPlayers()[i]).sendBoardToClient(game.getBoard());
+                }
+
+                for (int i = 0; i < game.humansAmount; ++i) {
+                    Thread t = new Thread((Human) game.getPlayers()[i]);
+                    t.start();
+                }
+
+                game.playGame();
+                game = null;
             }
-
-            for(int i = game.humansAmount; i < game.getNoOfPlayers(); ++i) {
-                game.setPlayer(PlayersFactory.getInstance().createBot(game.getPColor(game.getNoOfPlayers(), i)), i);
-            }
-
-            HashMap<Pawn[], Pawn.PlayerColor> boardMap = new HashMap<>();
-            initBoardMap(boardMap);
-
-            game.board = new Board(boardMap);
-            game.board.updateBoard();
-
-            for(int i = 0; i < game.humansAmount; ++i) {
-                ((Human) game.getPlayers()[i]).sendBoardToClient(game.getBoard());
-            }
-
-            for(int i = 0; i < game.humansAmount; ++i) {
-                Thread t = new Thread((Human) game.getPlayers()[i]);
-                t.start();
-            }
-
-            game.playGame();
 
     }
 

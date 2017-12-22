@@ -19,8 +19,7 @@ public class Client extends JFrame {
 
     private int x1, y1, x2, y2;
 	private Board board;
-    private Button skipMove;
-	private Socket socket = null;
+    private Socket socket = null;
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
 
@@ -35,9 +34,12 @@ public class Client extends JFrame {
     private void setGUI() {
 	    add(board, BorderLayout.CENTER);
 
-        skipMove = new Button("Skip move");
+        Button skipMove = new Button("End move");
+        skipMove.setFont(new Font("monospaced",Font.BOLD,16));
         skipMove.addActionListener(new MyActionListener());
 	    add(skipMove, BorderLayout.SOUTH);
+
+
 
 	    setDefaultCloseOperation(EXIT_ON_CLOSE);
 	    setLocation(100,100);
@@ -87,7 +89,7 @@ public class Client extends JFrame {
             exit(-1);
         }
     }
-//TODO: Wyró¿nienie zaznaczonych pól
+
     public void play() throws IOException, ClassNotFoundException, InterruptedException {
 
         while(true) {
@@ -177,10 +179,13 @@ public class Client extends JFrame {
                 if (x1 == -1 && y1 == -1) {
                     x1 = (e.getX() - 37) / scaleX;
                     y1 = (e.getY() - 32 - scaleY) / scaleY;
+                    board.setPaintPoint(e.getX()-13, e.getY()-34);
+                    board.repaint();
                 } else {
                     try {
                         x2 = (e.getX() - 37) / scaleX;
                         y2 = (e.getY() - 32 - scaleY) / scaleY;
+                        board.repaint();
                         int[] coordinates = {x1, y1, x2, y2};
 
                         out.writeObject(coordinates);

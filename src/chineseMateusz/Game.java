@@ -17,6 +17,9 @@ public class Game {
     int lastPlace;
     private int[] currentMove;
     private boolean aborted;
+    private boolean jumped;
+    private int xLast, yLast;
+    private boolean alreadyMoved;
 
     public Game(int x, int humans) throws InvalidNumberOfPlayersException, InvalidNumberOfHumansException{
 		if (humans < 1 || humans > x) {
@@ -40,12 +43,16 @@ public class Game {
         availablePlace = 1;
         lastPlace = x;
         aborted = false;
+        jumped = false;
+        alreadyMoved = false;
+        xLast = yLast = -100;
 	}
 
-    public void playGame() throws InterruptedException, IOException, ClassNotFoundException {
+    void playGame() throws InterruptedException, IOException, ClassNotFoundException {
         int index = (int) (Math.random() * players.length);
         do {
             for(int i = index; i < index + players.length; ++i) {
+
                 i = i % players.length;
 
                 if(!(players[i].hasFinished())) {
@@ -55,7 +62,13 @@ public class Game {
                         }
                     }
 
-                    ArrayList<int[]> moves = checkPossibleMoves(players[i]);
+                    ArrayList<int[]> moves;
+
+                    if(!alreadyMoved) {
+                        moves = checkPossibleMoves(players[i]);
+                    } else {
+                        moves = checkJumpMoves(players[i]);
+                    }
 
                     if(moves.isEmpty()) {
                         if(players[i] instanceof Human) {
@@ -67,6 +80,7 @@ public class Game {
                     if(players[i].isHuman()) {
                         Human currPlayer = (Human) players[i];
                         boolean moved = false;
+                        jumped = false;
 
                         while(!moved) {
                             currPlayer.setisMoving(true);
@@ -78,8 +92,11 @@ public class Game {
                             }
                             if(move[0] == -200 && move[1] == -200 && move[2] == -200 && move[3] == -200) {
                                 moved = true;
+                                jumped = false;
+                                alreadyMoved = false;
                                 currPlayer.setisMoving(false);
                                 currPlayer.nullCurrentMove();
+                                xLast = yLast = -100;
                                 continue;
                             }
 
@@ -96,6 +113,30 @@ public class Game {
                                 continue;
                             }
 
+                            int x, y;
+                            if (alreadyMoved) {
+                                x = xLast;
+                                y = yLast;
+                            } else {
+                                x = currentMove[0];
+                                y = currentMove[1];
+                            }
+
+                            int[][] furtherCoordinates = {{x - 2, y - 2}, {x + 2, y - 2}, {x - 4, y}, {x + 4, y}, {x - 2, y + 2}, {x + 2, y + 2}};
+                            for(int[] f: furtherCoordinates) {
+                                if(x == currentMove[0] && y == currentMove[1] && f[0] == currentMove[2] && f[1] == currentMove[3]) {
+                                    xLast = currentMove[2];
+                                    yLast = currentMove[3];
+                                    jumped = true;
+                                    alreadyMoved = true;
+                                    break;
+                                }
+                            }
+
+                            if(alreadyMoved && !jumped) {
+                                continue;
+                            }
+
                             checkingPawnsDestination(players[i]);
 
                             for(Player p : players) {
@@ -103,6 +144,7 @@ public class Game {
                                     (( Human) p).sendMoveToClient(currentMove);
                                 }
                             }
+
                             moved = true;
                             currPlayer.setisMoving(false);
                         }
@@ -132,10 +174,20 @@ public class Game {
                         players[i].setPlace(availablePlace);
                         availablePlace++;
                         players[i].setFinished(true);
+                        jumped = false;
+                        alreadyMoved = false;
+                    }
+                    if(jumped) {
+                        i--;
+                        alreadyMoved = true;
+                    } else {
+                        xLast = yLast = -100;
+                        alreadyMoved = false;
                     }
                 }
             }
         } while(!gameFinished() && !aborted);
+
         if(!aborted) {
         	for (Player p : players) {
                 if (p instanceof Human) {
@@ -158,18 +210,15 @@ public class Game {
         return stats;
     }
 
-
-
 	public boolean gameFinished() {
 		for (Player p : players) {
 			if(!p.hasFinished()) {
-                System.out.println(p.getPlayerColor());
                 return false;
 			}
 		}
 		return true;
 	}
-//TODO: Multiskok - logika
+
 	private ArrayList<int[]> checkPossibleMoves(Player p) {
         ArrayList<int[]> movesPossible = new ArrayList<>();
 
@@ -197,7 +246,6 @@ public class Game {
                             if (board.getBoard()[xTemp2][yTemp2] == Fields.EMPTY) {
                                 int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), furtherCoordinates[j][0], furtherCoordinates[j][1]};
                                 movesPossible.add(temp);
-                                moveJump(p, movesPossible, x, y, x, y, xTemp2, yTemp2);
                             }
                         } else {
                             int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), closerCoordinates[j][0], closerCoordinates[j][1]};
@@ -226,7 +274,6 @@ public class Game {
                                     if(c[0] == furtherCoordinates[j][0] && c[1] == furtherCoordinates[j][1]) {
                                         int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), furtherCoordinates[j][0], furtherCoordinates[j][1]};
                                         movesPossible.add(temp);
-                                        moveJump(p, movesPossible, x, y, x, y, xTemp2, yTemp2);
                                         break;
                                     }
                                 }
@@ -250,7 +297,69 @@ public class Game {
 
         return movesPossible;
     }
-	
+
+    private ArrayList<int[]> checkJumpMoves(Player p) {
+        ArrayList<int[]> movesPossible = new ArrayList<>();
+
+        for(int i = 0; i < p.pawns.length; ++i) {
+            int x = p.pawns[i].getX();
+            int y = p.pawns[i].getY();
+
+            int[][] closerCoordinates = {{x - 1, y - 1}, {x + 1, y - 1}, {x - 2, y}, {x + 2, y}, {x - 1, y + 1}, {x + 1, y + 1}};
+            int[][] furtherCoordinates = {{x - 2, y - 2}, {x + 2, y - 2}, {x - 4, y}, {x + 4, y}, {x - 2, y + 2}, {x + 2, y + 2}};
+
+            if(!(p.pawns[i].isInDestination())) {
+                for (int j = 0; j < closerCoordinates.length; ++j) {
+                    int xTemp =  closerCoordinates[j][0];
+                    int yTemp = closerCoordinates[j][1];
+                    if(xTemp < 0 || xTemp >= board.getBoard().length || yTemp < 0 || yTemp >= board.getBoard()[0].length) {
+                        continue;
+                    }
+                    if (board.getBoard()[xTemp][yTemp] == Fields.BUSY) {
+                        int xTemp2 =  furtherCoordinates[j][0];
+                        int yTemp2 = furtherCoordinates[j][1];
+                        if(xTemp2 < 0 || xTemp2 >= board.getBoard().length || yTemp2 < 0 || yTemp2 >= board.getBoard()[0].length) {
+                            continue;
+                        }
+                        if (board.getBoard()[xTemp2][yTemp2] == Fields.EMPTY) {
+                            int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), furtherCoordinates[j][0], furtherCoordinates[j][1]};
+                            movesPossible.add(temp);
+                        }
+                    }
+                }
+            } else {
+                ArrayList<int[]> destCoordinates = p.getEndCoordinates();
+                for (int j = 0; j < closerCoordinates.length; ++j) {
+                    int xTemp =  closerCoordinates[j][0];
+                    int yTemp = closerCoordinates[j][1];
+                    if(xTemp < 0 || xTemp >= board.getBoard().length || yTemp < 0 || yTemp >= board.getBoard()[0].length) {
+                        continue;
+                    }
+                    if (board.getBoard()[xTemp][yTemp] == Fields.BUSY) {
+                        int xTemp2 =  furtherCoordinates[j][0];
+                        int yTemp2 = furtherCoordinates[j][1];
+                        if(xTemp2 < 0 || xTemp2 >= board.getBoard().length || yTemp2 < 0 || yTemp2 >= board.getBoard()[0].length) {
+                            continue;
+                        }
+                        if (board.getBoard()[xTemp2][yTemp2] == Fields.EMPTY) {
+                            for(int[] c : destCoordinates) {
+                                if(c[0] == furtherCoordinates[j][0] && c[1] == furtherCoordinates[j][1]) {
+                                    int[] temp = {p.pawns[i].getX(),p.pawns[i].getY(), furtherCoordinates[j][0], furtherCoordinates[j][1]};
+                                    movesPossible.add(temp);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        return movesPossible;
+    }
+
 	protected boolean checkFinished (Player p) {
 		 ArrayList<int[]> tempEndCoord = p.getEndCoordinates();
 
@@ -339,98 +448,6 @@ public class Game {
                 board.updateBoard();
             }
         }
-    }
-
-    /*private void jumpMove(Player p, ArrayList<int[]> moves, int x, int y, ArrayList<int[]> prevPoints, int xCurr, int yCurr) {
-        int[][] closerCoordinates = {{xCurr - 1, yCurr - 1}, {xCurr + 1, yCurr - 1}, {xCurr - 2, yCurr}, {xCurr + 2, yCurr}, {xCurr - 1, yCurr + 1}, {xCurr + 1, yCurr + 1}};
-        int[][] furtherCoordinates = {{xCurr - 2, yCurr - 2}, {xCurr + 2, yCurr - 2}, {xCurr - 4, yCurr}, {xCurr + 4, yCurr}, {xCurr - 2, yCurr + 2}, {xCurr + 2, yCurr + 2}};
-
-        boolean move = false;
-        for(int i = 0; i < furtherCoordinates.length; ++i) {
-            int xTemp = furtherCoordinates[i][0];
-            int yTemp = furtherCoordinates[i][1];
-
-            if(xTemp < 0 || xTemp >= board.getBoard().length || yTemp < 0 || yTemp >= board.getBoard()[0].length) {
-                continue;
-            }
-
-            boolean visited = false;
-            for(int[] pr : prevPoints) {
-                if (xTemp == pr[0] && yTemp == pr[1]) {
-                    visited = true;
-                }
-            }
-            if(visited) {
-                continue;
-            }
-
-            boolean pawnInDest = false, moveInDest = false;
-            for(int j = 0; j < p.getEndCoordinates().size(); ++j) {
-                if(xCurr == p.getEndCoordinates().get(j)[0] && yCurr == p.getEndCoordinates().get(j)[1]) {
-                    pawnInDest = true;
-                }
-                if(xTemp == p.getEndCoordinates().get(j)[0] && yTemp == p.getEndCoordinates().get(j)[1]) {
-                    moveInDest = true;
-                }
-            }
-
-            if(pawnInDest && !moveInDest) {
-                continue;
-            }
-
-            if(board.getBoard()[closerCoordinates[i][0]][closerCoordinates[i][1]] != Fields.BUSY) {
-                continue;
-            }
-            if(board.getBoard()[xTemp][yTemp] == Fields.EMPTY) {
-                move = true;
-                ArrayList<int[]> xD = new ArrayList<>();
-                for(int[] pp: prevPoints) {
-                    xD.add(pp);
-                }
-                xD.add(new int[]{xCurr, yCurr});
-
-                jumpMove(p, moves, x, y, xD, xTemp, yTemp);
-
-            }
-        }
-        if(!move) {
-            moves.add(new int[]{x, y, xCurr, yCurr});
-        }
-    }
-*/
-    private void moveJump(Player p, ArrayList<int[]> moves, int x, int y, int xPrev, int yPrev, int xCurr, int yCurr) {
-        int xTemp = xCurr + (xCurr - xPrev);
-        int yTemp = yCurr + (yCurr - yPrev);
-        int xJumped = xCurr + (xCurr - xPrev)/2;
-        int yJumped = yCurr + (yCurr - yPrev)/2;
-
-        if(xTemp < 0 || xTemp >= board.getBoard().length || yTemp < 0 || yTemp >= board.getBoard()[0].length) {
-            return;
-        }
-
-        if(board.getBoard()[xJumped][yJumped] != Fields.BUSY) {
-            return;
-        }
-
-        boolean pawnInDest = false, moveInDest = false;
-        for(int j = 0; j < p.getEndCoordinates().size(); ++j) {
-            if(xCurr == p.getEndCoordinates().get(j)[0] && yCurr == p.getEndCoordinates().get(j)[1]) {
-                pawnInDest = true;
-            }
-            if(xTemp == p.getEndCoordinates().get(j)[0] && yTemp == p.getEndCoordinates().get(j)[1]) {
-                moveInDest = true;
-            }
-        }
-
-        if(pawnInDest && !moveInDest) {
-            return;
-        }
-
-        if(board.getBoard()[xTemp][yTemp] == Fields.EMPTY) {
-            moves.add(new int[]{x,y,xTemp, yTemp});
-            moveJump(p, moves, x, y, xCurr, yCurr, xTemp, yTemp);
-        }
-
     }
 
     public void abortedGame() {
