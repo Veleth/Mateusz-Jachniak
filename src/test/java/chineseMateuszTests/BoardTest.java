@@ -1,12 +1,12 @@
-package chineseMateuszTests;
+package test.java.chineseMateuszTests;
 
-import chineseMateusz.Board;
-import chineseMateusz.Board.Fields;
-import chineseMateusz.Bot;
-import chineseMateusz.Pawn;
-import chineseMateusz.Pawn.PlayerColor;
-import chineseMateusz.PlayersFactory;
-import chineseMateuszExceptions.BadCoordinateException;
+import main.java.chineseMateusz.Board;
+import main.java.chineseMateusz.Board.Fields;
+import main.java.chineseMateusz.Bot;
+import main.java.chineseMateusz.Pawn;
+import main.java.chineseMateusz.Pawn.PlayerColor;
+import main.java.chineseMateusz.PlayersFactory;
+import main.java.chineseMateuszExceptions.BadCoordinateException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,6 +34,8 @@ public class BoardTest {
 		b.repaint();
 		assertEquals(b.getBoard()[12][6], Fields.BUSY);
 
+		b.setCurrentColor(PlayerColor.BLUE);//Works
+		b.setPaintPoint(1, 1);//Works
 	}
 	
 }

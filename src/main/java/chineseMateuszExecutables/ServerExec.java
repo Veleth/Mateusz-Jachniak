@@ -1,6 +1,6 @@
-package chineseMateuszExecutables;
+package main.java.chineseMateuszExecutables;
 
-import chineseMateusz.Server;
+import main.java.chineseMateusz.Server;
 
 import static java.lang.System.exit;
 
@@ -8,7 +8,7 @@ public class ServerExec {
 
     public static void main(String[] args) {
         try {
-            Server server = new Server();
+            Server server = new Server(21372);
             server.gameHandling();
             server.closeStreams();
             exit(0);

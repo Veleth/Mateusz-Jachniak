@@ -1,10 +1,10 @@
-package chineseMateuszTests;
+package test.java.chineseMateuszTests;
 
-import chineseMateusz.*;
-import chineseMateusz.Pawn.PlayerColor;
-import chineseMateuszExceptions.BadCoordinateException;
-import chineseMateuszExceptions.InvalidNumberOfHumansException;
-import chineseMateuszExceptions.InvalidNumberOfPlayersException;
+import main.java.chineseMateusz.*;
+import main.java.chineseMateusz.Pawn.PlayerColor;
+import main.java.chineseMateuszExceptions.BadCoordinateException;
+import main.java.chineseMateuszExceptions.InvalidNumberOfHumansException;
+import main.java.chineseMateuszExceptions.InvalidNumberOfPlayersException;
 import org.junit.Test;
 
 import java.io.IOException;

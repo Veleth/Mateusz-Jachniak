@@ -1,4 +1,4 @@
-package chineseMateusz;
+package main.java.chineseMateusz;
 
 import javax.swing.*;
 import java.awt.*;

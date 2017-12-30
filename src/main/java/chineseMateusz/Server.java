@@ -1,9 +1,9 @@
-package chineseMateusz;
+package main.java.chineseMateusz;
 
-import chineseMateuszExceptions.BadCoordinateException;
-import chineseMateuszExceptions.GameException;
-import chineseMateuszExceptions.InvalidNumberOfHumansException;
-import chineseMateuszExceptions.InvalidNumberOfPlayersException;
+import main.java.chineseMateuszExceptions.BadCoordinateException;
+import main.java.chineseMateuszExceptions.GameException;
+import main.java.chineseMateuszExceptions.InvalidNumberOfHumansException;
+import main.java.chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,8 +17,8 @@ public class Server {
     private Game game;
     private ServerSocket server;
 
-    public Server() throws IOException {
-        server = new ServerSocket(21372);
+    public Server(int i) throws IOException {
+        server = new ServerSocket(i);
         System.out.println("Server works!");
     }
 

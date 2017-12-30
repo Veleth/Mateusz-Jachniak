@@ -1,4 +1,4 @@
-package chineseMateusz;
+package main.java.chineseMateusz;
 
 import java.io.Serializable;
 

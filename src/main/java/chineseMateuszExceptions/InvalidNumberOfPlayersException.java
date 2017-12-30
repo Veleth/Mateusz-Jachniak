@@ -1,4 +1,4 @@
-package chineseMateuszExceptions;
+package main.java.chineseMateuszExceptions;
 
 public class InvalidNumberOfPlayersException extends Exception {
 

@@ -1,4 +1,4 @@
-package chineseMateusz;
+package main.java.chineseMateusz;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,10 +23,10 @@ public class Client extends JFrame {
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
 
-    public Client() throws IOException, ClassNotFoundException {
+    public Client(int i) throws IOException, ClassNotFoundException {
 	    super("Chinese Checkers Client");
         addMouseListener(new MyMouseAdapter());
-        listenSocket();
+        listenSocket(i);
         initialize();
         setGUI();
     }
@@ -46,9 +46,9 @@ public class Client extends JFrame {
         setVisible(true);
     }
 
-    private void listenSocket() {
+    private void listenSocket(int i) {
         try {
-            socket = new Socket("localhost", 21372);
+            socket = new Socket("localhost", i);
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
             x1 = x2 = y1 = y2 = -1;

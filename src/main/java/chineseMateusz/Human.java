@@ -1,6 +1,6 @@
-package chineseMateusz;
+package main.java.chineseMateusz;
 
-import chineseMateusz.Pawn.PlayerColor;
+import main.java.chineseMateusz.Pawn.PlayerColor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

@@ -1,10 +1,10 @@
-package chineseMateuszTests;
+package test.java.chineseMateuszTests;
 
-import chineseMateusz.Bot;
-import chineseMateusz.Pawn;
-import chineseMateusz.Pawn.PlayerColor;
-import chineseMateusz.PlayersFactory;
-import chineseMateuszExceptions.BadCoordinateException;
+import main.java.chineseMateusz.Bot;
+import main.java.chineseMateusz.Pawn;
+import main.java.chineseMateusz.Pawn.PlayerColor;
+import main.java.chineseMateusz.PlayersFactory;
+import main.java.chineseMateuszExceptions.BadCoordinateException;
 import org.junit.Test;
 
 import java.util.ArrayList;

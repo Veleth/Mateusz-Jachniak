@@ -1,6 +1,6 @@
-package chineseMateusz;
+package main.java.chineseMateusz;
 
-import chineseMateuszExceptions.BadCoordinateException;
+import main.java.chineseMateuszExceptions.BadCoordinateException;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

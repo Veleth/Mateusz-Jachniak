@@ -1,9 +1,9 @@
-package chineseMateusz;
+package main.java.chineseMateusz;
 
-import chineseMateusz.Board.Fields;
-import chineseMateusz.Pawn.PlayerColor;
-import chineseMateuszExceptions.InvalidNumberOfHumansException;
-import chineseMateuszExceptions.InvalidNumberOfPlayersException;
+import main.java.chineseMateusz.Board.Fields;
+import main.java.chineseMateusz.Pawn.PlayerColor;
+import main.java.chineseMateuszExceptions.InvalidNumberOfHumansException;
+import main.java.chineseMateuszExceptions.InvalidNumberOfPlayersException;
 
 import java.io.IOException;
 import java.util.ArrayList;
