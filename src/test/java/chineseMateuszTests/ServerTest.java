@@ -7,7 +7,6 @@ import main.java.chineseMateuszExceptions.BadCoordinateException;
 import main.java.chineseMateuszExceptions.GameException;
 import main.java.chineseMateuszExceptions.InvalidNumberOfHumansException;
 import main.java.chineseMateuszExceptions.InvalidNumberOfPlayersException;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,7 +16,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 public class ServerTest {
 

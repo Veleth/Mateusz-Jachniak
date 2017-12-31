@@ -35,13 +35,10 @@ public class PawnTest {
 
 		ArrayList<Pawn[]> arr = new ArrayList<Pawn[]>(h.keySet());
 		ArrayList<Pawn[]> arg = new ArrayList<Pawn[]>(hb.keySet());
-		
-//		System.out.println(arr.get(0).getClass());
+
 		Pawn p = arr.get(0)[0];
-//		System.out.println(p.getX());
 		Pawn tmp = arg.get(0)[0];
 		p.setPos(0, 0);
-//		System.out.println(tmp.getX());
 		assertNotSame(p.getX(), tmp.getX());
 
 	}

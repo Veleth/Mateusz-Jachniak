@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Map;
 
 import static java.lang.System.exit;
@@ -24,7 +23,7 @@ public class Client extends JFrame {
 	private ObjectInputStream in;
 
     public Client(int i) throws IOException, ClassNotFoundException {
-	    super("Chinese Checkers Client");
+        super("Chinese Checkers Client");
         addMouseListener(new MyMouseAdapter());
         listenSocket(i);
         initialize();
@@ -46,21 +45,11 @@ public class Client extends JFrame {
         setVisible(true);
     }
 
-    private void listenSocket(int i) {
-        try {
-            socket = new Socket("localhost", i);
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
-            x1 = x2 = y1 = y2 = -1;
-        }
-        catch (UnknownHostException e){
-            JOptionPane.showMessageDialog(null, "Unknown host!", "ERROR", JOptionPane.ERROR_MESSAGE);
-            exit(1);
-        }
-        catch (IOException e){
-            JOptionPane.showMessageDialog(null, "Could not establish connection with server!", "ERROR", JOptionPane.ERROR_MESSAGE);
-            exit(1);
-        }
+    private void listenSocket(int i) throws IOException {
+        socket = new Socket("localhost", i);
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
+        x1 = x2 = y1 = y2 = -1;
     }
 
     private void initialize() throws IOException, ClassNotFoundException {

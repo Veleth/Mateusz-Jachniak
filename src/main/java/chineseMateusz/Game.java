@@ -155,7 +155,6 @@ public class Game {
 
                     } else {
                         Bot currBot = (Bot) players[i];
-                        //todo set forbidden moves
                         currentMove = currBot.move(checkPossibleMoves(players[i]));
 
                         if(currentMove == null) {

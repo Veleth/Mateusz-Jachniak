@@ -14,7 +14,6 @@ public class Bot extends Player {
 		setHuman(false);
 	}
 
-	//todo set forbidden fields
     public int[] move(ArrayList<int[]> possibleMoves){
         if (possibleMoves.isEmpty()) {
             return null;
