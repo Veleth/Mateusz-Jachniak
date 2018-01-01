@@ -51,7 +51,7 @@ public class ServerTest {
     }
     
 	@Test(expected=GameException.class)
-   	public void gameExceptionTest() throws UnknownHostException, IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, GameException, BadCoordinateException{
+   	public void gameExceptionTest() throws IOException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, GameException, BadCoordinateException{
    	
 	   Server server = new Server(21371);
        Socket so = new Socket("localhost", 21371);
@@ -63,13 +63,13 @@ public class ServerTest {
        server.closeStreams();
    }
 	
-	@Ignore //Can't cover this one
+	@Ignore("Endless loop in server")
 	public void thoroughTest() throws IOException, GameException, BadCoordinateException, ClassNotFoundException, InvalidNumberOfHumansException, InvalidNumberOfPlayersException, InterruptedException{
 		
 		Server server = new Server(21374);
 	    Socket so = new Socket("localhost", 21374);
 	    Socket so2 = server.getServer().accept();
-        server.gameHandling();  //ENDLESS LOOP
+        server.gameHandling();
 	       
 	    server.closeStreams();
 	}
